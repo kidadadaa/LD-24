@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>雷达卫士 · 扇形波束看板</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,27 +21,27 @@
             justify-content: center;
             align-items: center;
         }
-        .dashboard {
-            max-width: 700px;
-            width: 100%;
-            margin: 0 auto;
+        .dashboard {        .仪表板 {
+            max-width: 700px;最大宽度: 700像素;
+            width宽度宽度: 100%;宽度: 100%;
+            margin: 0 auto; margin边距: 0 auto自动;边距:0自动;边距自动
         }
-        .glass-card {
-            background: rgba(20, 28, 48, 0.7);
-            backdrop-filter: blur(18px);
-            border-radius: 32px;
-            border: 1px solid rgba(96, 165, 250, 0.2);
+        .glass-card {        .玻璃卡片 {        .玻璃卡片 {        .玻璃卡片 {        .玻璃卡片 {        .玻璃卡片 {        .玻璃卡片 {        .玻璃卡片 {
+            background: rgba(20, 28, 48, 0.7);背景: rgba(20, 28, 48, 0.7);背景: rgba(20, 28, 48, 0.7);背景: rgba(20, 28, 48, 0.7);
+            backdrop-filter: blur(18px);背景滤镜: 模糊(18像素);
+            border-radius: 32px;边框半径: 32像素;
+            border: 1px solid rgba(96, 165, 250, 0.2);边框: 1像素 实线 rgba(96, 165, 250, 0.2);
             box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.03);
-            overflow: hidden;
+            overflow: hidden;溢出: 隐藏;
             margin-bottom: 20px;
         }
         .header {
             padding: 20px 16px 12px;
-            text-align: center;
-            border-bottom: 1px solid rgba(96,165,250,0.2);
+            text-align: center;文本对齐: 居中;
+            border-bottom: 1px solid rgba(96,165,250,0.2);边框底部: 1像素 实线 rgba(96,165,250,0.2);
         }
-        .header h1 {
-            font-size: 1.6rem;
+        .header h1 {        .标题 h1 {
+            font-size: 1.6rem;字体大小: 1.6rem;
             font-weight: 600;
             background: linear-gradient(135deg, #e0f2fe, #7ab3ff);
             background-clip: text;
