@@ -1,5 +1,5 @@
 {
-  "routes""路由": [
-    { "src""源""源": "/(.*)", "dest""目标""目标""目标": "/index.html" }
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
