@@ -16,7 +16,7 @@
             background: linear-gradient(145deg, #0a0f1e 0%, #12182e 100%);
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
             min-height: 100vh;
-            padding: 16px 12px;
+            padding: 12px 10px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,19 +29,19 @@
         .glass-card {
             background: rgba(20, 28, 48, 0.7);
             backdrop-filter: blur(18px);
-            border-radius: 32px;
+            border-radius: 28px;
             border: 1px solid rgba(96, 165, 250, 0.2);
             box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.03);
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .header {
-            padding: 20px 16px 12px;
+            padding: 16px 12px 10px;
             text-align: center;
             border-bottom: 1px solid rgba(96,165,250,0.2);
         }
         .header h1 {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 600;
             background: linear-gradient(135deg, #e0f2fe, #7ab3ff);
             background-clip: text;
@@ -49,23 +49,22 @@
             color: transparent;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .sub {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #8aa2cf;
             margin-top: 4px;
         }
-        /* 雷达平面图区域 */
         .radar-section {
-            padding: 20px 16px 8px;
+            padding: 16px 12px 4px;
             display: flex;
             justify-content: center;
         }
         .radar-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
+            max-width: 320px;
             aspect-ratio: 1 / 1;
             margin: 0 auto;
             background: rgba(0,0,0,0.4);
@@ -82,52 +81,51 @@
         }
         .radar-label {
             text-align: center;
-            margin-top: 12px;
-            font-size: 0.7rem;
+            margin-top: 8px;
+            font-size: 0.65rem;
             color: #6c86b0;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
-        /* 状态卡片 */
         .stats-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            padding: 12px 16px 20px;
+            gap: 10px;
+            padding: 12px 12px 16px;
         }
         .stat-item {
-            flex: 1 1 calc(50% - 12px);
+            flex: 1 1 calc(50% - 10px);
             background: rgba(0,0,0,0.35);
-            border-radius: 24px;
-            padding: 12px 8px;
+            border-radius: 20px;
+            padding: 10px 6px;
             text-align: center;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(96,165,250,0.15);
         }
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             font-weight: 500;
             color: #8aa2cf;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .stat-value {
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
             line-height: 1.2;
         }
         .stat-unit {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #8aa2cf;
         }
         .badge {
             display: inline-block;
             background: rgba(59,130,246,0.2);
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            margin-top: 6px;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            margin-top: 5px;
             color: #9bbaf5;
         }
         .badge-alarm {
@@ -144,34 +142,37 @@
             50% { opacity: 1; text-shadow: 0 0 3px rgba(239,68,68,0.5);}
             100% { opacity: 0.7; }
         }
-        /* 图表区域 */
         .chart-wrapper {
-            padding: 0 16px 20px;
+            padding: 0 12px 16px;
         }
         .chart-card {
             background: rgba(0,0,0,0.3);
-            border-radius: 28px;
-            padding: 8px;
+            border-radius: 24px;
+            padding: 6px;
         }
         #distanceChart {
             width: 100%;
-            height: 260px;
+            height: 240px;
         }
         .footer-note {
             text-align: center;
-            padding: 14px;
-            font-size: 0.6rem;
+            padding: 10px;
+            font-size: 0.55rem;
             color: #4f6b96;
             border-top: 1px solid rgba(96,165,250,0.1);
         }
         @media (min-width: 640px) {
             .dashboard { max-width: 700px; }
-            .stat-value { font-size: 2rem; }
-            #distanceChart { height: 300px; }
+            .stat-value { font-size: 1.8rem; }
+            #distanceChart { height: 280px; }
+            .radar-container { max-width: 380px; }
+            .header h1 { font-size: 1.6rem; }
         }
         @media (max-width: 480px) {
-            .stat-value { font-size: 1.4rem; }
+            .stat-value { font-size: 1.3rem; }
             .radar-container { max-width: 280px; }
+            .stats-grid { gap: 8px; }
+            .stat-item { padding: 8px 4px; }
         }
     </style>
 </head>
@@ -183,7 +184,6 @@
             <div class="sub">LD2410B 毫米波雷达 | 120° 波束角 · 最大距离 600cm</div>
         </div>
 
-        <!-- 雷达平面图区域（扇形+网格坐标） -->
         <div class="radar-section">
             <div class="radar-container">
                 <canvas id="radarCanvas" width="500" height="500"></canvas>
@@ -191,15 +191,13 @@
             <div class="radar-label">⚡ 波束中心线方向 · 橙色光点代表目标距离位置</div>
         </div>
 
-        <!-- 状态指标 -->
         <div class="stats-grid">
             <div class="stat-item"><div class="stat-label">👤 人员状态</div><div class="stat-value" id="presenceValue">--</div><div class="badge" id="presenceBadge">等待数据</div></div>
             <div class="stat-item"><div class="stat-label">📏 距离</div><div class="stat-value"><span id="distanceValue">--</span><span class="stat-unit">cm</span></div></div>
             <div class="stat-item"><div class="stat-label">🏃 运动</div><div class="stat-value" id="motionValue">--</div></div>
-            <div class="stat-item"><div class="stat-label">⏱️ 最后更新</div><div class="stat-value" style="font-size:0.9rem;" id="timestamp">--</div></div>
+            <div class="stat-item"><div class="stat-label">⏱️ 最后更新</div><div class="stat-value" style="font-size:0.85rem;" id="timestamp">--</div></div>
         </div>
 
-        <!-- 距离 + 运动 双轴曲线 -->
         <div class="chart-wrapper">
             <div class="chart-card">
                 <div id="distanceChart"></div>
@@ -224,13 +222,18 @@
     const motionEl = document.getElementById('motionValue');
     const timestampEl = document.getElementById('timestamp');
 
-    // ---------- 3. 雷达画布 (大喇叭形状扇形 + 地图坐标) ----------
+    // ---------- 3. 雷达画布 ----------
     const radarCanvas = document.getElementById('radarCanvas');
     let ctx = radarCanvas.getContext('2d');
     let currentDistance = 0;
     let currentPresence = 0;
-    let animationId = null;
-    let scanAngle = 0; // 扫描线角度，用于动态效果
+    
+    // 动态脉冲圆环参数
+    let pulseRadius = 0;
+    let pulseDirection = 1; // 1: 扩大, -1: 缩小
+    const PULSE_MAX = 40;    // 最大半径(px)
+    const PULSE_MIN = 5;     // 最小半径
+    const PULSE_STEP = 1.2;   // 每帧变化步长
 
     function setCanvasSize() {
         const size = 500;
@@ -242,14 +245,14 @@
     function drawRadar() {
         const w = radarCanvas.width, h = radarCanvas.height;
         const centerX = w/2, centerY = h/2;
-        const maxRadius = w/2 - 20;  // 最大距离对应600cm
+        const maxRadius = w/2 - 20;
         ctx.clearRect(0, 0, w, h);
         
         // 背景
         ctx.fillStyle = '#030f1f';
         ctx.fillRect(0, 0, w, h);
         
-        // 绘制扇形（120°，以正东方向为中心，左右各60°）
+        // 扇形（120°，以正东方向为中心）
         const startAngle = -60 * Math.PI/180;
         const endAngle = 60 * Math.PI/180;
         ctx.beginPath();
@@ -262,7 +265,7 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // 绘制扇形边框（强调大喇叭形状）
+        // 扇形边框
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
@@ -272,10 +275,9 @@
         ctx.lineWidth = 1.8;
         ctx.stroke();
         
-        // 绘制网格线（类似地图坐标：极坐标网格线）
-        // 径向线：每隔15°一条（除边界外）
+        // 径向线（每隔15°）
         for (let angle = -60; angle <= 60; angle += 15) {
-            if (Math.abs(angle) === 60) continue; // 边界已经画过
+            if (Math.abs(angle) === 60) continue;
             let rad = angle * Math.PI/180;
             let x = centerX + maxRadius * Math.cos(rad);
             let y = centerY + maxRadius * Math.sin(rad);
@@ -286,7 +288,8 @@
             ctx.lineWidth = 0.6;
             ctx.stroke();
         }
-        // 距离环（同心圆弧）：100, 200, 300, 400, 500, 600cm
+        
+        // 距离环
         for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
             ctx.beginPath();
             ctx.arc(centerX, centerY, r, startAngle, endAngle);
@@ -301,35 +304,40 @@
             }
         }
         
-        // 绘制中心原点
+        // 中心原点
         ctx.beginPath();
         ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
         ctx.fillStyle = '#60a5fa';
         ctx.fill();
         
-        // 标注坐标轴示意（X轴为0°方向，Y轴为90°方向）
+        // 坐标标注（微调位置）
         ctx.fillStyle = '#6c86b0';
         ctx.font = '9px sans-serif';
         ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
-        ctx.fillText('Y (90°)', centerX + 2, centerY - maxRadius + 12);
-        ctx.fillText('120°', centerX + maxRadius*0.6, centerY - 15);
+        ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
+        ctx.fillText('120°', centerX + maxRadius*0.65, centerY - 12);
         
-        // 绘制动态扫描线（旋转的短线）
-        let rad = scanAngle * Math.PI/180;
-        let lineEndX = centerX + maxRadius * Math.cos(rad);
-        let lineEndY = centerY + maxRadius * Math.sin(rad);
+        // 动态脉冲圆环（从小到大的圆圈）
+        // 先绘制半透明外圈，再绘制内圈，形成呼吸感
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(lineEndX, lineEndY);
-        ctx.strokeStyle = 'rgba(96, 165, 250, 0.7)';
+        ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, pulseRadius * 0.6, 0, 2*Math.PI);
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.5)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, pulseRadius * 0.3, 0, 2*Math.PI);
+        ctx.fillStyle = 'rgba(249, 115, 22, 0.2)';
+        ctx.fill();
         
-        // 绘制目标光点（如果有人且距离有效）
+        // 目标光点
         if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
             let radiusRatio = currentDistance / 600;
             let targetRadius = radiusRatio * maxRadius;
-            // 目标位于中心线（0°方向）
             const angleRad = 0;
             let x = centerX + targetRadius * Math.cos(angleRad);
             let y = centerY + targetRadius * Math.sin(angleRad);
@@ -349,12 +357,20 @@
             ctx.fillText(`${currentDistance}cm`, x+12, y-6);
         }
         
-        // 动态扫描线动画效果
-        scanAngle = (scanAngle + 2) % 360;
-        requestAnimationFrame(() => drawRadar());  // 持续动画
+        // 更新脉冲半径（从小到大，再从大到小，循环）
+        pulseRadius += PULSE_STEP * pulseDirection;
+        if (pulseRadius >= PULSE_MAX) {
+            pulseRadius = PULSE_MAX;
+            pulseDirection = -1;
+        } else if (pulseRadius <= PULSE_MIN) {
+            pulseRadius = PULSE_MIN;
+            pulseDirection = 1;
+        }
+        
+        requestAnimationFrame(() => drawRadar());
     }
 
-    // ---------- 4. 双轴曲线 ----------
+    // ---------- 4. 图表 ----------
     let chart = null;
     let historyData = [];
     const MAX_POINTS = 30;
@@ -365,18 +381,60 @@
         chart.setOption({
             backgroundColor: 'transparent',
             tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(0,0,0,0.75)', borderColor: '#3b82f6', textStyle: { color: '#fff' } },
-            legend: { data: ['距离 (cm)', '运动状态'], textStyle: { color: '#cbd5e6' }, itemWidth: 25, itemHeight: 14, right: 10, top: 0 },
-            grid: { left: '10%', right: '12%', top: '15%', bottom: '12%', containLabel: true },
-            xAxis: { type: 'time', name: '时间', nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold' }, axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 10 }, axisLine: { lineStyle: { color: '#3b82f6' } } },
+            legend: { 
+                data: ['距离 (cm)', '运动状态'], 
+                textStyle: { color: '#cbd5e6' }, 
+                itemWidth: 20, 
+                itemHeight: 12,
+                left: 'center',
+                top: 0,
+                orient: 'horizontal',
+                itemGap: 15
+            },
+            grid: { 
+                left: '12%', 
+                right: '12%', 
+                top: '18%', 
+                bottom: '12%', 
+                containLabel: true,
+                backgroundColor: 'rgba(0,0,0,0.2)'
+            },
+            xAxis: { 
+                type: 'time', 
+                name: '时间', 
+                nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold', fontSize: 10 }, 
+                axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 9, interval: 'auto' }, 
+                axisLine: { lineStyle: { color: '#3b82f6' } } 
+            },
             yAxis: [
-                { type: 'value', name: '距离 (cm)', nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold' }, axisLabel: { color: '#cbd5e6' }, splitLine: { lineStyle: { color: '#1f2a48', type: 'dashed' } }, min: 0, max: 600 },
-                { type: 'value', name: '运动', nameTextStyle: { color: '#f97316', fontWeight: 'bold' }, axisLabel: { color: '#f97316', formatter: v => v===1?'运动':(v===0?'静止':'') }, splitLine: { show: false }, min: -0.2, max: 1.2, interval: 1 }
+                { 
+                    type: 'value', 
+                    name: '距离 (cm)', 
+                    nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold', fontSize: 10 }, 
+                    axisLabel: { color: '#cbd5e6', fontSize: 9 }, 
+                    splitLine: { lineStyle: { color: '#1f2a48', type: 'dashed' } }, 
+                    min: 0, 
+                    max: 600,
+                    axisLine: { show: false }
+                },
+                { 
+                    type: 'value', 
+                    name: '运动', 
+                    nameTextStyle: { color: '#f97316', fontWeight: 'bold', fontSize: 10 }, 
+                    axisLabel: { color: '#f97316', fontSize: 9, formatter: v => v===1?'运动':(v===0?'静止':'') }, 
+                    splitLine: { show: false }, 
+                    min: -0.2, 
+                    max: 1.2, 
+                    interval: 1,
+                    axisLine: { show: false }
+                }
             ],
             series: [
-                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#60a5fa' }, areaStyle: { opacity: 0.2, color: '#3b82f6' }, data: [], yAxisIndex: 0 },
-                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', symbolSize: 6, lineStyle: { width: 2, color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1, itemStyle: { color: params => params.value===1 ? '#f97316' : '#6c86b0' } }
+                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#60a5fa' }, areaStyle: { opacity: 0.2, color: '#3b82f6' }, data: [], yAxisIndex: 0 },
+                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', symbolSize: 5, lineStyle: { width: 2, color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1, itemStyle: { color: params => params.value===1 ? '#f97316' : '#6c86b0' } }
             ]
         });
+        window.addEventListener('resize', () => { if(chart) chart.resize(); });
     }
 
     function updateCharts(distance, motion, timestampMs) {
