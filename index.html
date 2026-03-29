@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>雷达卫士 · 观察板</title>
+    <title>雷达卫士 · 扇形波束看板</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
     <style>
         * {
@@ -213,7 +213,6 @@
     // ---------- 1. 获取设备ID ----------
     function getDeviceId() { const params = new URLSearchParams(window.location.search); return params.get('id'); }
     const deviceId = getDeviceId();
-    // 关键修改：使用 HTTPS 避免 Mixed Content 阻止
     const API_BASE = 'https://api.heclouds.com/devices';
 
     // ---------- 2. DOM 元素 ----------
@@ -229,29 +228,41 @@
     let currentDistance = 0;
     let currentPresence = 0;
     
-    // 动态脉冲圆环参数
+    // 单向脉冲参数（波纹效果）
     let pulseRadius = 0;
-    let pulseDirection = 1; // 1: 扩大, -1: 缩小
-    const PULSE_MAX = 40;
-    const PULSE_MIN = 5;
-    const PULSE_STEP = 1.2;
+    let pulseStep = 1.2;       // 每帧增加的半径（px）
+    let maxPulseRadius = 0;    // 动态计算（扇形最大半径）
+    let animationId = null;     // 动画句柄
 
     function setCanvasSize() {
         const size = 500;
         radarCanvas.width = size;
         radarCanvas.height = size;
-        drawRadar();
+        // 重新计算最大脉冲半径（扇形最大半径）
+        const w = radarCanvas.width, h = radarCanvas.height;
+        maxPulseRadius = w/2 - 20;  // 与扇形外弧半径一致
+        // 重置脉冲半径，避免突然变大
+        pulseRadius = 0;
+        // 如果已有动画循环，不需要重复启动
+        if (!animationId) {
+            drawRadar();
+        } else {
+            // 只重绘一帧，不重新启动循环
+            drawRadar();
+        }
     }
 
     function drawRadar() {
         const w = radarCanvas.width, h = radarCanvas.height;
         const centerX = w/2, centerY = h/2;
-        const maxRadius = w/2 - 20;
+        const maxRadius = w/2 - 20;  // 扇形外弧半径
         ctx.clearRect(0, 0, w, h);
         
+        // 背景
         ctx.fillStyle = '#030f1f';
         ctx.fillRect(0, 0, w, h);
         
+        // 扇形（120°，以正东方向为中心）
         const startAngle = -60 * Math.PI/180;
         const endAngle = 60 * Math.PI/180;
         ctx.beginPath();
@@ -264,6 +275,7 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
+        // 扇形边框
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
@@ -273,6 +285,7 @@
         ctx.lineWidth = 1.8;
         ctx.stroke();
         
+        // 径向线（每隔15°）
         for (let angle = -60; angle <= 60; angle += 15) {
             if (Math.abs(angle) === 60) continue;
             let rad = angle * Math.PI/180;
@@ -286,6 +299,7 @@
             ctx.stroke();
         }
         
+        // 距离环
         for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
             ctx.beginPath();
             ctx.arc(centerX, centerY, r, startAngle, endAngle);
@@ -300,32 +314,47 @@
             }
         }
         
+        // 中心原点
         ctx.beginPath();
         ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
         ctx.fillStyle = '#60a5fa';
         ctx.fill();
         
+        // 坐标标注
         ctx.fillStyle = '#6c86b0';
         ctx.font = '9px sans-serif';
         ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
         ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
         ctx.fillText('120°', centerX + maxRadius*0.65, centerY - 12);
         
-        // 动态脉冲圆环
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
-        ctx.strokeStyle = 'rgba(249, 115, 22, 0.8)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, pulseRadius * 0.6, 0, 2*Math.PI);
-        ctx.strokeStyle = 'rgba(249, 115, 22, 0.5)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, pulseRadius * 0.3, 0, 2*Math.PI);
-        ctx.fillStyle = 'rgba(249, 115, 22, 0.2)';
-        ctx.fill();
+        // ----- 单向脉冲波纹（从中心扩散到边缘，然后消失重置）-----
+        if (pulseRadius <= maxPulseRadius) {
+            // 半径越大透明度越低（消失效果）
+            const alpha = Math.max(0, 1 - (pulseRadius / maxPulseRadius) * 0.8);
+            // 绘制三个同心圆环，增加波纹层次感
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.8})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius * 0.7, 0, 2*Math.PI);
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.5})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius * 0.4, 0, 2*Math.PI);
+            ctx.fillStyle = `rgba(249, 115, 22, ${alpha * 0.2})`;
+            ctx.fill();
+        }
+        
+        // 更新脉冲半径（单向扩散）
+        pulseRadius += pulseStep;
+        if (pulseRadius >= maxPulseRadius) {
+            pulseRadius = 0;   // 到达边缘后瞬间重置为0，开始新一轮扩散
+        }
         
         // 目标光点
         if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
@@ -350,16 +379,8 @@
             ctx.fillText(`${currentDistance}cm`, x+12, y-6);
         }
         
-        pulseRadius += PULSE_STEP * pulseDirection;
-        if (pulseRadius >= PULSE_MAX) {
-            pulseRadius = PULSE_MAX;
-            pulseDirection = -1;
-        } else if (pulseRadius <= PULSE_MIN) {
-            pulseRadius = PULSE_MIN;
-            pulseDirection = 1;
-        }
-        
-        requestAnimationFrame(() => drawRadar());
+        // 继续动画循环（只启动一个）
+        animationId = requestAnimationFrame(() => drawRadar());
     }
 
     // ---------- 4. 图表 ----------
@@ -442,7 +463,7 @@
         });
     }
 
-    // ---------- 5. OneNET 数据获取 (HTTPS) ----------
+    // ---------- 5. OneNET 数据获取 ----------
     async function fetchDataStream(streamName) {
         if (!deviceId) return null;
         const url = `${API_BASE}/${deviceId}/datastreams/${streamName}/datapoint?type=3`;
@@ -482,7 +503,7 @@
 
     // ---------- 6. 启动 ----------
     if (deviceId) {
-        setCanvasSize();
+        setCanvasSize();    // 内部启动动画（如果未启动）
         initChart();
         refreshData();
         setInterval(refreshData, 2000);
@@ -492,7 +513,15 @@
         presenceEl.innerHTML = '📌 未绑定'; presenceBadge.innerHTML = '请在链接后添加 ?id=设备ID';
         distanceEl.innerHTML = '--'; motionEl.innerHTML = '--'; timestampEl.innerHTML = '--';
     }
-    window.addEventListener('resize', () => { drawRadar(); if(chart) chart.resize(); });
+    // 监听窗口大小变化，重新计算最大脉冲半径并重绘（不新建动画循环）
+    window.addEventListener('resize', () => {
+        const w = radarCanvas.width, h = radarCanvas.height;
+        maxPulseRadius = w/2 - 20;
+        // 重置脉冲半径，避免出现过大脉冲
+        pulseRadius = 0;
+        // 重绘一帧，动画循环继续
+        if (chart) chart.resize();
+    });
 </script>
 </body>
 </html>
