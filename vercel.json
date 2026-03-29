@@ -1,5 +1,5 @@
 {
-  “路线”: 
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "/index.html"
