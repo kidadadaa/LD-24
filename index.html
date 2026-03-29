@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>雷达卫士 · 扇形波束看板</title>
+    <title>雷达卫士 · 多设备看板</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         body {
             background: linear-gradient(145deg, #0a0f1e 0%, #12182e 100%);
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
             min-height: 100vh;
             padding: 12px 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
         .dashboard {
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
             margin: 0 auto;
         }
@@ -31,35 +27,103 @@
             backdrop-filter: blur(18px);
             border-radius: 28px;
             border: 1px solid rgba(96, 165, 250, 0.2);
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.03);
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
             overflow: hidden;
             margin-bottom: 16px;
         }
-        .header {
-            padding: 16px 12px 10px;
-            text-align: center;
+        .card-header {
+            padding: 14px 16px 8px;
             border-bottom: 1px solid rgba(96,165,250,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .header h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #e0f2fe, #7ab3ff);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: #e0f2fe;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .sub {
-            font-size: 0.65rem;
-            color: #8aa2cf;
-            margin-top: 4px;
-        }
-        .radar-section {
-            padding: 16px 12px 4px;
+        .device-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 40px;
+            padding: 5px 12px;
             display: flex;
-            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .device-selector select {
+            background: #1e2a4a;
+            border: 1px solid #3b82f6;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .device-selector button {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .device-selector button.edit-btn {
+            background: #f97316;
+        }
+        .device-selector button.del-btn {
+            background: #ef4444;
+        }
+        .add-device {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .add-device input {
+            flex: 1;
+            background: #1e2a4a;
+            border: 1px solid #3b82f6;
+            border-radius: 30px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 0.7rem;
+        }
+        .add-device button {
+            background: #10b981;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #8aa2cf;
+        }
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f97316;
         }
         .radar-container {
             position: relative;
@@ -67,9 +131,6 @@
             max-width: 320px;
             aspect-ratio: 1 / 1;
             margin: 0 auto;
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            box-shadow: 0 0 0 1px rgba(59,130,246,0.3);
         }
         canvas {
             position: absolute;
@@ -79,45 +140,21 @@
             height: 100%;
             border-radius: 20px;
         }
-        .radar-label {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 0.65rem;
-            color: #6c86b0;
-            letter-spacing: 0.5px;
-        }
-        .stats-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 12px 12px 16px;
-        }
-        .stat-item {
-            flex: 1 1 calc(50% - 10px);
-            background: rgba(0,0,0,0.35);
+        .chart-box {
+            background: rgba(0,0,0,0.3);
             border-radius: 20px;
-            padding: 10px 6px;
+            padding: 8px;
+            margin: 0 12px 16px 12px;
+        }
+        #distanceChart {
+            width: 100%;
+            height: 260px;
+        }
+        .footer-note {
             text-align: center;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(96,165,250,0.15);
-        }
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
-            color: #8aa2cf;
-            margin-bottom: 4px;
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            line-height: 1.2;
-        }
-        .stat-unit {
-            font-size: 0.7rem;
-            color: #8aa2cf;
+            padding: 10px;
+            font-size: 0.55rem;
+            color: #4f6b96;
         }
         .badge {
             display: inline-block;
@@ -142,331 +179,230 @@
             50% { opacity: 1; text-shadow: 0 0 3px rgba(239,68,68,0.5);}
             100% { opacity: 0.7; }
         }
-        .chart-wrapper {
-            padding: 0 12px 16px;
-        }
-        .chart-card {
-            background: rgba(0,0,0,0.3);
-            border-radius: 24px;
-            padding: 6px;
-        }
-        #distanceChart {
-            width: 100%;
-            height: 240px;
-        }
-        .footer-note {
-            text-align: center;
-            padding: 10px;
-            font-size: 0.55rem;
-            color: #4f6b96;
-            border-top: 1px solid rgba(96,165,250,0.1);
-        }
         @media (min-width: 640px) {
-            .dashboard { max-width: 700px; }
-            .stat-value { font-size: 1.8rem; }
-            #distanceChart { height: 280px; }
             .radar-container { max-width: 380px; }
-            .header h1 { font-size: 1.6rem; }
-        }
-        @media (max-width: 480px) {
-            .stat-value { font-size: 1.3rem; }
-            .radar-container { max-width: 280px; }
-            .stats-grid { gap: 8px; }
-            .stat-item { padding: 8px 4px; }
+            #distanceChart { height: 280px; }
         }
     </style>
 </head>
 <body>
 <div class="dashboard">
+    <!-- 设备管理卡片 -->
     <div class="glass-card">
-        <div class="header">
-            <h1>📡 雷达卫士 · 扇形波束</h1>
-            <div class="sub">LD2410B 毫米波雷达 | 120° 波束角 · 最大距离 600cm</div>
+        <div class="card-header">
+            <h2>📡 雷达卫士 · 多设备</h2>
+            <div class="device-selector" id="deviceSelector">
+                <select id="deviceSelect"></select>
+                <button class="edit-btn" id="editDeviceBtn">✏️ 编辑</button>
+                <button class="del-btn" id="delDeviceBtn">🗑️ 删除</button>
+            </div>
         </div>
+        <div style="padding: 0 16px 12px 16px;">
+            <div class="add-device">
+                <input type="text" id="newDeviceId" placeholder="设备ID (数字)" value="">
+                <input type="text" id="newDeviceName" placeholder="名称 (如: 客厅)" value="">
+                <button id="addDeviceBtn">➕ 添加设备</button>
+            </div>
+        </div>
+    </div>
 
-        <div class="radar-section">
+    <!-- 状态卡片 -->
+    <div class="glass-card">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">👤 人员状态</div><div class="stat-number" id="presenceValue">--</div><div class="badge" id="presenceBadge">等待数据</div></div>
+            <div class="stat-card"><div class="stat-label">📏 距离</div><div class="stat-number"><span id="distanceValue">--</span><span style="font-size:0.9rem;">cm</span></div></div>
+            <div class="stat-card"><div class="stat-label">🏃 运动</div><div class="stat-number" id="motionValue">--</div></div>
+            <div class="stat-card"><div class="stat-label">⏱️ 最后更新</div><div class="stat-number" style="font-size:1rem;" id="timestamp">--</div></div>
+        </div>
+        <div class="stats-row" style="padding-top:0;">
+            <div class="stat-card"><div class="stat-label">📊 今日累计有人时长</div><div class="stat-number" id="totalPresenceTime">0 秒</div></div>
+            <div class="stat-card"><div class="stat-label">🔄 重置时长</div><button id="resetTimerBtn" style="background:#f97316; border:none; padding:6px 12px; border-radius:20px; color:white;">重置</button></div>
+        </div>
+    </div>
+
+    <!-- 雷达图 -->
+    <div class="glass-card">
+        <div style="padding: 16px 0 8px;">
             <div class="radar-container">
                 <canvas id="radarCanvas" width="500" height="500"></canvas>
             </div>
-            <div class="radar-label">⚡ 波束中心线方向 · 橙色光点代表目标距离位置</div>
+            <div class="radar-label" style="text-align:center; margin-top:8px;">⚡ 脉冲波纹 · 橙色光点为目标位置</div>
         </div>
+    </div>
 
-        <div class="stats-grid">
-            <div class="stat-item"><div class="stat-label">👤 人员状态</div><div class="stat-value" id="presenceValue">--</div><div class="badge" id="presenceBadge">等待数据</div></div>
-            <div class="stat-item"><div class="stat-label">📏 距离</div><div class="stat-value"><span id="distanceValue">--</span><span class="stat-unit">cm</span></div></div>
-            <div class="stat-item"><div class="stat-label">🏃 运动</div><div class="stat-value" id="motionValue">--</div></div>
-            <div class="stat-item"><div class="stat-label">⏱️ 最后更新</div><div class="stat-value" style="font-size:0.85rem;" id="timestamp">--</div></div>
-        </div>
-
-        <div class="chart-wrapper">
-            <div class="chart-card">
-                <div id="distanceChart"></div>
-            </div>
+    <!-- 距离曲线 -->
+    <div class="glass-card">
+        <div class="chart-box">
+            <div id="distanceChart"></div>
         </div>
         <div class="footer-note">
-            🔗 数据来自 OneNET 公开API | 左轴距离(cm) · 右轴运动(0=静止/1=运动) | 雷达波束扇区中心方向0°
+            🔗 数据来自 OneNET API | 左轴距离(cm) · 右轴运动(0=静止/1=运动)
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- 1. 获取设备ID ----------
-    function getDeviceId() { const params = new URLSearchParams(window.location.search); return params.get('id'); }
-    const deviceId = getDeviceId();
-    const API_BASE = 'https://api.heclouds.com/devices';
+    // ---------- 设备管理 ----------
+    let devices = [];
+    let currentDeviceId = null;
 
-    // ---------- 2. DOM 元素 ----------
-    const presenceEl = document.getElementById('presenceValue');
-    const presenceBadge = document.getElementById('presenceBadge');
-    const distanceEl = document.getElementById('distanceValue');
-    const motionEl = document.getElementById('motionValue');
-    const timestampEl = document.getElementById('timestamp');
-
-    // ---------- 3. 雷达画布 ----------
-    const radarCanvas = document.getElementById('radarCanvas');
-    let ctx = radarCanvas.getContext('2d');
-    let currentDistance = 0;
-    let currentPresence = 0;
-    
-    // 单向脉冲参数（波纹效果）
-    let pulseRadius = 0;
-    let pulseStep = 1.2;       // 每帧增加的半径（px）
-    let maxPulseRadius = 0;    // 动态计算（扇形最大半径）
-    let animationId = null;     // 动画句柄
-
-    function setCanvasSize() {
-        const size = 500;
-        radarCanvas.width = size;
-        radarCanvas.height = size;
-        // 重新计算最大脉冲半径（扇形最大半径）
-        const w = radarCanvas.width, h = radarCanvas.height;
-        maxPulseRadius = w/2 - 20;  // 与扇形外弧半径一致
-        // 重置脉冲半径，避免突然变大
-        pulseRadius = 0;
-        // 如果已有动画循环，不需要重复启动
-        if (!animationId) {
-            drawRadar();
+    function loadDevices() {
+        const stored = localStorage.getItem('radar_devices');
+        if (stored) {
+            devices = JSON.parse(stored);
         } else {
-            // 只重绘一帧，不重新启动循环
-            drawRadar();
+            devices = [
+                { id: '12345678', name: '客厅雷达' },
+                { id: '87654321', name: '卧室雷达' }
+            ];
+            saveDevices();
+        }
+        renderDeviceSelect();
+        if (devices.length > 0 && !currentDeviceId) {
+            currentDeviceId = devices[0].id;
+        }
+        if (currentDeviceId && !devices.find(d => d.id === currentDeviceId)) {
+            currentDeviceId = devices[0]?.id || null;
+        }
+        if (currentDeviceId) {
+            document.getElementById('deviceSelect').value = currentDeviceId;
+            onDeviceChange();
         }
     }
 
-    function drawRadar() {
-        const w = radarCanvas.width, h = radarCanvas.height;
-        const centerX = w/2, centerY = h/2;
-        const maxRadius = w/2 - 20;  // 扇形外弧半径
-        ctx.clearRect(0, 0, w, h);
-        
-        // 背景
-        ctx.fillStyle = '#030f1f';
-        ctx.fillRect(0, 0, w, h);
-        
-        // 扇形（120°，以正东方向为中心）
-        const startAngle = -60 * Math.PI/180;
-        const endAngle = 60 * Math.PI/180;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, maxRadius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(59,130,246,0.2)';
-        ctx.fill();
-        ctx.strokeStyle = '#3b82f6';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        // 扇形边框
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
-        ctx.lineTo(centerX + maxRadius * Math.cos(endAngle), centerY + maxRadius * Math.sin(endAngle));
-        ctx.closePath();
-        ctx.strokeStyle = '#f97316';
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
-        
-        // 径向线（每隔15°）
-        for (let angle = -60; angle <= 60; angle += 15) {
-            if (Math.abs(angle) === 60) continue;
-            let rad = angle * Math.PI/180;
-            let x = centerX + maxRadius * Math.cos(rad);
-            let y = centerY + maxRadius * Math.sin(rad);
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = '#2c5a8c';
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
+    function saveDevices() {
+        localStorage.setItem('radar_devices', JSON.stringify(devices));
+    }
+
+    function renderDeviceSelect() {
+        const select = document.getElementById('deviceSelect');
+        select.innerHTML = '';
+        devices.forEach(dev => {
+            const option = document.createElement('option');
+            option.value = dev.id;
+            option.textContent = `${dev.name} (${dev.id})`;
+            select.appendChild(option);
+        });
+        if (currentDeviceId) select.value = currentDeviceId;
+    }
+
+    function addDevice(id, name) {
+        if (!id || !name) return alert('请填写设备ID和名称');
+        if (devices.find(d => d.id === id)) return alert('设备ID已存在');
+        devices.push({ id: String(id), name: name });
+        saveDevices();
+        renderDeviceSelect();
+        currentDeviceId = String(id);
+        document.getElementById('deviceSelect').value = currentDeviceId;
+        onDeviceChange();
+    }
+
+    function editCurrentDevice() {
+        const dev = devices.find(d => d.id === currentDeviceId);
+        if (!dev) return;
+        const newName = prompt('请输入新的设备名称', dev.name);
+        if (newName && newName.trim()) {
+            dev.name = newName.trim();
+            saveDevices();
+            renderDeviceSelect();
         }
-        
-        // 距离环
-        for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, r, startAngle, endAngle);
-            ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            let distCm = Math.round( (r / maxRadius) * 600 );
-            if (distCm % 100 === 0 || r === maxRadius/6) {
-                ctx.fillStyle = '#7e95c0';
-                ctx.font = '10px "Segoe UI"';
-                ctx.fillText(`${distCm}cm`, centerX + r - 12, centerY - 4);
+    }
+
+    function deleteCurrentDevice() {
+        if (devices.length <= 1) return alert('至少保留一个设备');
+        const idx = devices.findIndex(d => d.id === currentDeviceId);
+        if (idx !== -1) {
+            devices.splice(idx, 1);
+            saveDevices();
+            currentDeviceId = devices[0].id;
+            renderDeviceSelect();
+            onDeviceChange();
+        }
+    }
+
+    // 存在时长统计
+    let presenceStartTime = null;
+    let totalPresenceSeconds = 0;
+    let currentPresenceState = false;
+
+    function resetPresenceTimer() {
+        totalPresenceSeconds = 0;
+        updatePresenceDisplay();
+        if (currentPresenceState) {
+            presenceStartTime = Date.now();
+        } else {
+            presenceStartTime = null;
+        }
+    }
+
+    function updatePresenceDisplay() {
+        const hours = Math.floor(totalPresenceSeconds / 3600);
+        const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
+        const secs = totalPresenceSeconds % 60;
+        let text = '';
+        if (hours > 0) text = `${hours}小时${minutes}分`;
+        else if (minutes > 0) text = `${minutes}分${secs}秒`;
+        else text = `${secs}秒`;
+        document.getElementById('totalPresenceTime').innerText = text;
+    }
+
+    function updateTimerLoop() {
+        if (currentPresenceState && presenceStartTime) {
+            const now = Date.now();
+            const added = Math.floor((now - presenceStartTime) / 1000);
+            if (added > 0) {
+                totalPresenceSeconds += added;
+                presenceStartTime = now;
+                updatePresenceDisplay();
             }
         }
-        
-        // 中心原点
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
-        ctx.fillStyle = '#60a5fa';
-        ctx.fill();
-        
-        // 坐标标注
-        ctx.fillStyle = '#6c86b0';
-        ctx.font = '9px sans-serif';
-        ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
-        ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
-        ctx.fillText('120°', centerX + maxRadius*0.65, centerY - 12);
-        
-        // ----- 单向脉冲波纹（从中心扩散到边缘，然后消失重置）-----
-        if (pulseRadius <= maxPulseRadius) {
-            // 半径越大透明度越低（消失效果）
-            const alpha = Math.max(0, 1 - (pulseRadius / maxPulseRadius) * 0.8);
-            // 绘制三个同心圆环，增加波纹层次感
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
-            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.8})`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseRadius * 0.7, 0, 2*Math.PI);
-            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.5})`;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseRadius * 0.4, 0, 2*Math.PI);
-            ctx.fillStyle = `rgba(249, 115, 22, ${alpha * 0.2})`;
-            ctx.fill();
-        }
-        
-        // 更新脉冲半径（单向扩散）
-        pulseRadius += pulseStep;
-        if (pulseRadius >= maxPulseRadius) {
-            pulseRadius = 0;   // 到达边缘后瞬间重置为0，开始新一轮扩散
-        }
-        
-        // 目标光点
-        if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
-            let radiusRatio = currentDistance / 600;
-            let targetRadius = radiusRatio * maxRadius;
-            const angleRad = 0;
-            let x = centerX + targetRadius * Math.cos(angleRad);
-            let y = centerY + targetRadius * Math.sin(angleRad);
-            ctx.beginPath();
-            ctx.arc(x, y, 8, 0, 2*Math.PI);
-            ctx.fillStyle = '#f97316';
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#ff9933';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x, y, 12, 0, 2*Math.PI);
-            ctx.fillStyle = 'rgba(255, 153, 51, 0.3)';
-            ctx.fill();
-            ctx.fillStyle = '#ffd966';
-            ctx.font = 'bold 11px monospace';
-            ctx.shadowBlur = 0;
-            ctx.fillText(`${currentDistance}cm`, x+12, y-6);
-        }
-        
-        // 继续动画循环（只启动一个）
-        animationId = requestAnimationFrame(() => drawRadar());
     }
 
-    // ---------- 4. 图表 ----------
+    // ---------- 数据获取与图表 ----------
+    const API_BASE = 'https://api.heclouds.com/devices';
+    let currentDistance = 0;
+    let currentPresence = 0;
     let chart = null;
-    let historyData = [];
-    const MAX_POINTS = 30;
+    let historyData = [];      // { time, distance, motion }
+    const MAX_POINTS = 100;
 
     function initChart() {
         const dom = document.getElementById('distanceChart');
         chart = echarts.init(dom);
         chart.setOption({
             backgroundColor: 'transparent',
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(0,0,0,0.75)', borderColor: '#3b82f6', textStyle: { color: '#fff' } },
-            legend: { 
-                data: ['距离 (cm)', '运动状态'], 
-                textStyle: { color: '#cbd5e6' }, 
-                itemWidth: 20, 
-                itemHeight: 12,
-                left: 'center',
-                top: 0,
-                orient: 'horizontal',
-                itemGap: 15
-            },
-            grid: { 
-                left: '12%', 
-                right: '12%', 
-                top: '18%', 
-                bottom: '12%', 
-                containLabel: true,
-                backgroundColor: 'rgba(0,0,0,0.2)'
-            },
-            xAxis: { 
-                type: 'time', 
-                name: '时间', 
-                nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold', fontSize: 10 }, 
-                axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 9, interval: 'auto' }, 
-                axisLine: { lineStyle: { color: '#3b82f6' } } 
-            },
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['距离 (cm)', '运动状态'], textStyle: { color: '#cbd5e6' }, left: 'center', top: 0, itemWidth: 20 },
+            grid: { left: '12%', right: '12%', top: '18%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'time', name: '时间', nameTextStyle: { color: '#8aa2cf' }, axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 9 } },
             yAxis: [
-                { 
-                    type: 'value', 
-                    name: '距离 (cm)', 
-                    nameTextStyle: { color: '#8aa2cf', fontWeight: 'bold', fontSize: 10 }, 
-                    axisLabel: { color: '#cbd5e6', fontSize: 9 }, 
-                    splitLine: { lineStyle: { color: '#1f2a48', type: 'dashed' } }, 
-                    min: 0, 
-                    max: 600,
-                    axisLine: { show: false }
-                },
-                { 
-                    type: 'value', 
-                    name: '运动', 
-                    nameTextStyle: { color: '#f97316', fontWeight: 'bold', fontSize: 10 }, 
-                    axisLabel: { color: '#f97316', fontSize: 9, formatter: v => v===1?'运动':(v===0?'静止':'') }, 
-                    splitLine: { show: false }, 
-                    min: -0.2, 
-                    max: 1.2, 
-                    interval: 1,
-                    axisLine: { show: false }
-                }
+                { type: 'value', name: '距离 (cm)', min: 0, max: 600, axisLabel: { color: '#cbd5e6' } },
+                { type: 'value', name: '运动', min: -0.2, max: 1.2, interval: 1, axisLabel: { color: '#f97316', formatter: v => v===1?'运动':(v===0?'静止':'') } }
             ],
             series: [
-                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#60a5fa' }, areaStyle: { opacity: 0.2, color: '#3b82f6' }, data: [], yAxisIndex: 0 },
-                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', symbolSize: 5, lineStyle: { width: 2, color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1, itemStyle: { color: params => params.value===1 ? '#f97316' : '#6c86b0' } }
+                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', lineStyle: { color: '#60a5fa' }, data: [], yAxisIndex: 0 },
+                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', lineStyle: { color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1 }
             ]
         });
-        window.addEventListener('resize', () => { if(chart) chart.resize(); });
     }
 
     function updateCharts(distance, motion, timestampMs) {
         if (!chart) initChart();
         const time = new Date(timestampMs);
-        historyData.push({ time, distance, motion: motion===1?1:0 });
+        historyData.push({ time, distance, motion: motion === 1 ? 1 : 0 });
         if (historyData.length > MAX_POINTS) historyData.shift();
+
         chart.setOption({
             series: [
-                { data: historyData.map(p => [p.time, p.distance]), yAxisIndex: 0 },
-                { data: historyData.map(p => [p.time, p.motion]), yAxisIndex: 1 }
+                { data: historyData.map(p => [p.time, p.distance]) },
+                { data: historyData.map(p => [p.time, p.motion]) }
             ]
         });
     }
 
-    // ---------- 5. OneNET 数据获取 ----------
     async function fetchDataStream(streamName) {
-        if (!deviceId) return null;
-        const url = `${API_BASE}/${deviceId}/datastreams/${streamName}/datapoint?type=3`;
+        if (!currentDeviceId) return null;
+        const url = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
         try {
             const resp = await fetch(url);
             if (!resp.ok) return null;
@@ -476,51 +412,199 @@
     }
 
     async function refreshData() {
-        if (!deviceId) {
-            presenceEl.innerHTML = '⚠️ 无设备ID'; presenceBadge.innerHTML = 'URL缺少 ?id=xxx';
-            distanceEl.innerHTML = '--'; motionEl.innerHTML = '--'; timestampEl.innerHTML = '--';
-            currentDistance = 0; currentPresence = 0;
-            return;
-        }
+        if (!currentDeviceId) return;
         const [presence, motion, distance] = await Promise.all([
             fetchDataStream('presence'), fetchDataStream('motion'), fetchDataStream('distance')
         ]);
         const now = new Date();
         const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-        currentPresence = (presence === 1) ? 1 : 0;
-        currentDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
+        const newPresence = (presence === 1);
+        const newDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
 
-        if (presence === 1) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 人员在场'; presenceBadge.className = 'badge badge-alarm'; }
-        else if (presence === 0) { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 环境安静'; presenceBadge.className = 'badge badge-safe'; }
+        // 存在时长逻辑
+        if (newPresence !== currentPresenceState) {
+            if (newPresence) {
+                presenceStartTime = Date.now();
+            } else {
+                if (presenceStartTime) {
+                    const added = Math.floor((Date.now() - presenceStartTime) / 1000);
+                    if (added > 0) totalPresenceSeconds += added;
+                    presenceStartTime = null;
+                    updatePresenceDisplay();
+                }
+            }
+            currentPresenceState = newPresence;
+        }
+
+        currentPresence = presence === 1 ? 1 : 0;
+        currentDistance = newDistance;
+
+        // 更新UI
+        const presenceEl = document.getElementById('presenceValue');
+        const presenceBadge = document.getElementById('presenceBadge');
+        const distanceEl = document.getElementById('distanceValue');
+        const motionEl = document.getElementById('motionValue');
+        const timestampEl = document.getElementById('timestamp');
+        if (presence === 1) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 在场'; presenceBadge.className = 'badge badge-alarm'; }
+        else if (presence === 0) { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 安静'; presenceBadge.className = 'badge badge-safe'; }
         else { presenceEl.innerHTML = '❓ 未知'; presenceBadge.className = 'badge'; }
-        distanceEl.innerHTML = (currentDistance !== 0) ? currentDistance : '--';
+        distanceEl.innerHTML = newDistance !== 0 ? newDistance : '--';
         motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
         timestampEl.innerHTML = timeStr;
 
-        if (currentDistance > 0 && currentDistance <= 600) updateCharts(currentDistance, motion, now.getTime());
+        if (newDistance > 0 && newDistance <= 600) updateCharts(newDistance, motion, now.getTime());
         else if (currentPresence === 0) updateCharts(0, motion, now.getTime());
     }
 
-    // ---------- 6. 启动 ----------
-    if (deviceId) {
-        setCanvasSize();    // 内部启动动画（如果未启动）
-        initChart();
+    function onDeviceChange() {
+        currentDeviceId = document.getElementById('deviceSelect').value;
+        // 重置历史数据和图表
+        historyData = [];
+        if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
+        // 重置存在时长（每个设备独立统计，这里简单重置为0，可按需扩展）
+        totalPresenceSeconds = 0;
+        presenceStartTime = null;
+        currentPresenceState = false;
+        updatePresenceDisplay();
         refreshData();
-        setInterval(refreshData, 2000);
-    } else {
-        setCanvasSize();
-        initChart();
-        presenceEl.innerHTML = '📌 未绑定'; presenceBadge.innerHTML = '请在链接后添加 ?id=设备ID';
-        distanceEl.innerHTML = '--'; motionEl.innerHTML = '--'; timestampEl.innerHTML = '--';
     }
-    // 监听窗口大小变化，重新计算最大脉冲半径并重绘（不新建动画循环）
-    window.addEventListener('resize', () => {
+
+    // 每秒计时器
+    setInterval(() => updateTimerLoop(), 1000);
+
+    // ---------- 雷达绘制 ----------
+    const radarCanvas = document.getElementById('radarCanvas');
+    let ctx = radarCanvas.getContext('2d');
+    let pulseRadius = 0;
+    let maxPulseRadius = 0;
+    let animationId = null;
+
+    function setCanvasSize() {
+        const size = 500;
+        radarCanvas.width = size;
+        radarCanvas.height = size;
         const w = radarCanvas.width, h = radarCanvas.height;
         maxPulseRadius = w/2 - 20;
-        // 重置脉冲半径，避免出现过大脉冲
         pulseRadius = 0;
-        // 重绘一帧，动画循环继续
+        if (!animationId) drawRadar();
+    }
+
+    function drawRadar() {
+        const w = radarCanvas.width, h = radarCanvas.height;
+        const centerX = w/2, centerY = h/2;
+        const maxRadius = w/2 - 20;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#030f1f';
+        ctx.fillRect(0, 0, w, h);
+
+        const startAngle = -60 * Math.PI/180;
+        const endAngle = 60 * Math.PI/180;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, maxRadius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(59,130,246,0.2)';
+        ctx.fill();
+        ctx.strokeStyle = '#3b82f6';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
+        ctx.lineTo(centerX + maxRadius * Math.cos(endAngle), centerY + maxRadius * Math.sin(endAngle));
+        ctx.closePath();
+        ctx.strokeStyle = '#f97316';
+        ctx.stroke();
+
+        for (let angle = -60; angle <= 60; angle += 15) {
+            if (Math.abs(angle) === 60) continue;
+            let rad = angle * Math.PI/180;
+            let x = centerX + maxRadius * Math.cos(rad);
+            let y = centerY + maxRadius * Math.sin(rad);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = '#2c5a8c';
+            ctx.stroke();
+        }
+
+        for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, r, startAngle, endAngle);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.stroke();
+            let distCm = Math.round( (r / maxRadius) * 600 );
+            ctx.fillStyle = '#7e95c0';
+            ctx.font = '10px "Segoe UI"';
+            ctx.fillText(`${distCm}cm`, centerX + r - 12, centerY - 4);
+        }
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
+        ctx.fillStyle = '#60a5fa';
+        ctx.fill();
+
+        ctx.fillStyle = '#6c86b0';
+        ctx.font = '9px sans-serif';
+        ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
+        ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
+
+        // 脉冲波纹
+        if (pulseRadius <= maxPulseRadius) {
+            const alpha = Math.max(0, 1 - (pulseRadius / maxPulseRadius) * 0.8);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.8})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius * 0.7, 0, 2*Math.PI);
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.5})`;
+            ctx.stroke();
+        }
+        pulseRadius += 1.5;
+        if (pulseRadius >= maxPulseRadius) pulseRadius = 0;
+
+        // 目标光点
+        if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
+            let targetRadius = (currentDistance / 600) * maxRadius;
+            let x = centerX + targetRadius;
+            let y = centerY;
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, 2*Math.PI);
+            ctx.fillStyle = '#f97316';
+            ctx.shadowBlur = 12;
+            ctx.fill();
+            ctx.fillStyle = '#ffd966';
+            ctx.font = 'bold 11px monospace';
+            ctx.shadowBlur = 0;
+            ctx.fillText(`${currentDistance}cm`, x+12, y-6);
+        }
+
+        animationId = requestAnimationFrame(drawRadar);
+    }
+
+    // 事件绑定
+    document.getElementById('addDeviceBtn').onclick = () => {
+        const id = document.getElementById('newDeviceId').value.trim();
+        const name = document.getElementById('newDeviceName').value.trim();
+        if (id && name) addDevice(id, name);
+        else alert('请填写完整');
+    };
+    document.getElementById('editDeviceBtn').onclick = editCurrentDevice;
+    document.getElementById('delDeviceBtn').onclick = deleteCurrentDevice;
+    document.getElementById('resetTimerBtn').onclick = resetPresenceTimer;
+    document.getElementById('deviceSelect').onchange = onDeviceChange;
+
+    // 启动
+    loadDevices();
+    setCanvasSize();
+    initChart();
+    refreshData();
+    setInterval(refreshData, 3000);
+    window.addEventListener('resize', () => {
         if (chart) chart.resize();
+        setCanvasSize();
     });
 </script>
 </body>
