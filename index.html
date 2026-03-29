@@ -213,7 +213,8 @@
     // ---------- 1. 获取设备ID ----------
     function getDeviceId() { const params = new URLSearchParams(window.location.search); return params.get('id'); }
     const deviceId = getDeviceId();
-    const API_BASE = 'http://api.heclouds.com/devices';
+    // 关键修改：使用 HTTPS 避免 Mixed Content 阻止
+    const API_BASE = 'https://api.heclouds.com/devices';
 
     // ---------- 2. DOM 元素 ----------
     const presenceEl = document.getElementById('presenceValue');
@@ -231,9 +232,9 @@
     // 动态脉冲圆环参数
     let pulseRadius = 0;
     let pulseDirection = 1; // 1: 扩大, -1: 缩小
-    const PULSE_MAX = 40;    // 最大半径(px)
-    const PULSE_MIN = 5;     // 最小半径
-    const PULSE_STEP = 1.2;   // 每帧变化步长
+    const PULSE_MAX = 40;
+    const PULSE_MIN = 5;
+    const PULSE_STEP = 1.2;
 
     function setCanvasSize() {
         const size = 500;
@@ -248,11 +249,9 @@
         const maxRadius = w/2 - 20;
         ctx.clearRect(0, 0, w, h);
         
-        // 背景
         ctx.fillStyle = '#030f1f';
         ctx.fillRect(0, 0, w, h);
         
-        // 扇形（120°，以正东方向为中心）
         const startAngle = -60 * Math.PI/180;
         const endAngle = 60 * Math.PI/180;
         ctx.beginPath();
@@ -265,7 +264,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // 扇形边框
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
@@ -275,7 +273,6 @@
         ctx.lineWidth = 1.8;
         ctx.stroke();
         
-        // 径向线（每隔15°）
         for (let angle = -60; angle <= 60; angle += 15) {
             if (Math.abs(angle) === 60) continue;
             let rad = angle * Math.PI/180;
@@ -289,7 +286,6 @@
             ctx.stroke();
         }
         
-        // 距离环
         for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
             ctx.beginPath();
             ctx.arc(centerX, centerY, r, startAngle, endAngle);
@@ -304,21 +300,18 @@
             }
         }
         
-        // 中心原点
         ctx.beginPath();
         ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
         ctx.fillStyle = '#60a5fa';
         ctx.fill();
         
-        // 坐标标注（微调位置）
         ctx.fillStyle = '#6c86b0';
         ctx.font = '9px sans-serif';
         ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
         ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
         ctx.fillText('120°', centerX + maxRadius*0.65, centerY - 12);
         
-        // 动态脉冲圆环（从小到大的圆圈）
-        // 先绘制半透明外圈，再绘制内圈，形成呼吸感
+        // 动态脉冲圆环
         ctx.beginPath();
         ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
         ctx.strokeStyle = 'rgba(249, 115, 22, 0.8)';
@@ -357,7 +350,6 @@
             ctx.fillText(`${currentDistance}cm`, x+12, y-6);
         }
         
-        // 更新脉冲半径（从小到大，再从大到小，循环）
         pulseRadius += PULSE_STEP * pulseDirection;
         if (pulseRadius >= PULSE_MAX) {
             pulseRadius = PULSE_MAX;
@@ -450,7 +442,7 @@
         });
     }
 
-    // ---------- 5. OneNET 数据获取 ----------
+    // ---------- 5. OneNET 数据获取 (HTTPS) ----------
     async function fetchDataStream(streamName) {
         if (!deviceId) return null;
         const url = `${API_BASE}/${deviceId}/datastreams/${streamName}/datapoint?type=3`;
