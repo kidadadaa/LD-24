@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>雷达卫士 · 多设备看板</title>
+    <title>雷达卫士 · 多设备看板 · 可调量程与刷新率</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
     <style>
         * {
@@ -11,17 +11,22 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             background: linear-gradient(145deg, #0a0f1e 0%, #12182e 100%);
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
             min-height: 100vh;
-            padding: 12px 10px;
+            padding: 12px 12px;
+            overflow-x: hidden;          /* 彻底防止水平溢出 */
         }
+
         .dashboard {
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
         }
+
+        /* 通用卡片风格 */
         .glass-card {
             background: rgba(20, 28, 48, 0.7);
             backdrop-filter: blur(18px);
@@ -30,7 +35,9 @@
             box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
             overflow: hidden;
             margin-bottom: 16px;
+            width: 100%;
         }
+
         .card-header {
             padding: 14px 16px 8px;
             border-bottom: 1px solid rgba(96,165,250,0.2);
@@ -40,6 +47,7 @@
             flex-wrap: wrap;
             gap: 10px;
         }
+
         .card-header h2 {
             font-size: 1.2rem;
             color: #e0f2fe;
@@ -47,6 +55,7 @@
             align-items: center;
             gap: 8px;
         }
+
         .device-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 40px;
@@ -56,15 +65,18 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+
         .device-selector select {
             background: #1e2a4a;
             border: 1px solid #3b82f6;
             color: white;
             padding: 6px 12px;
             border-radius: 30px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             outline: none;
+            max-width: 160px;
         }
+
         .device-selector button {
             background: #3b82f6;
             border: none;
@@ -73,62 +85,144 @@
             border-radius: 30px;
             font-size: 0.7rem;
             cursor: pointer;
+            transition: 0.2s;
         }
-        .device-selector button.edit-btn {
-            background: #f97316;
-        }
-        .device-selector button.del-btn {
-            background: #ef4444;
-        }
+
+        .device-selector button.edit-btn { background: #f97316; }
+        .device-selector button.del-btn { background: #ef4444; }
+
         .add-device {
             display: flex;
             gap: 8px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
+
         .add-device input {
             flex: 1;
+            min-width: 100px;
             background: #1e2a4a;
             border: 1px solid #3b82f6;
             border-radius: 30px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
         }
+
         .add-device button {
             background: #10b981;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 30px;
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             cursor: pointer;
         }
+
+        /* 统计卡片区域 */
         .stats-row {
             display: flex;
             gap: 12px;
             padding: 12px 16px;
             flex-wrap: wrap;
         }
+
         .stat-card {
             flex: 1;
+            min-width: 100px;
             background: rgba(0,0,0,0.4);
             border-radius: 20px;
             padding: 10px;
             text-align: center;
         }
+
         .stat-label {
             font-size: 0.7rem;
             color: #8aa2cf;
         }
+
         .stat-number {
             font-size: 1.6rem;
             font-weight: 700;
             color: #f97316;
         }
+
+        /* 调节面板样式 */
+        .control-group {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(96,165,250,0.15);
+        }
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #cbd5e6;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .control-label span:first-child {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .control-label span:last-child {
+            font-family: monospace;
+            background: #0f172a;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: #facc15;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #2d3a5e;
+            border-radius: 4px;
+            outline: none;
+            margin: 8px 0;
+        }
+        input[type="range"]:focus {
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f97316;
+            cursor: pointer;
+            box-shadow: 0 0 6px #ff9f4a;
+            border: none;
+        }
+        .range-value {
+            font-size: 0.75rem;
+            color: #9bbaf5;
+            text-align: right;
+        }
+        .manual-refresh {
+            background: #3b82f6;
+            border: none;
+            border-radius: 28px;
+            padding: 6px 14px;
+            color: white;
+            font-size: 0.7rem;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        .warning-note {
+            font-size: 0.6rem;
+            color: #facc15;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* 雷达图容器 - 避免溢出 */
         .radar-container {
             position: relative;
             width: 100%;
-            max-width: 320px;
+            max-width: 340px;
             aspect-ratio: 1 / 1;
             margin: 0 auto;
         }
@@ -136,10 +230,17 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
             border-radius: 20px;
         }
+        .radar-label {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: #9bbaf5;
+        }
+
         .chart-box {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
@@ -150,12 +251,14 @@
             width: 100%;
             height: 260px;
         }
+
         .footer-note {
             text-align: center;
             padding: 10px;
             font-size: 0.55rem;
             color: #4f6b96;
         }
+
         .badge {
             display: inline-block;
             background: rgba(59,130,246,0.2);
@@ -179,9 +282,47 @@
             50% { opacity: 1; text-shadow: 0 0 3px rgba(239,68,68,0.5);}
             100% { opacity: 0.7; }
         }
-        @media (min-width: 640px) {
-            .radar-container { max-width: 380px; }
-            #distanceChart { height: 280px; }
+
+        /* 移动端极致适配 */
+        @media (max-width: 560px) {
+            body {
+                padding: 8px 8px;
+            }
+            .card-header h2 {
+                font-size: 1rem;
+            }
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            .stat-card {
+                min-width: 70px;
+            }
+            .device-selector select {
+                max-width: 130px;
+                font-size: 0.7rem;
+            }
+            .control-label {
+                font-size: 0.75rem;
+            }
+            .radar-container {
+                max-width: 280px;
+            }
+            #distanceChart {
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .stats-row {
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 6px;
+            }
+            .add-device input {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -220,23 +361,52 @@
         </div>
     </div>
 
-    <!-- 雷达图 -->
+    <!-- 🆕 距离量程 & 刷新间隔调节卡片 (满足核心需求) -->
+    <div class="glass-card">
+        <div class="card-header">
+            <h2>🎛️ 调节面板 · 量程 & 刷新率</h2>
+        </div>
+        <!-- 距离最大量程调节 0~600cm -->
+        <div class="control-group">
+            <div class="control-label">
+                <span>📐 雷达/图表 最大量程 (室内↔室外)</span>
+                <span id="maxDistanceLabel">600 cm</span>
+            </div>
+            <input type="range" id="distanceRange" min="10" max="600" step="1" value="600">
+            <div class="range-value">⬅️ 滑动改变显示范围 (不影响真实距离，仅可视化映射)</div>
+        </div>
+        <!-- 刷新时间间隔 0~600 秒，支持0停止自动刷新 -->
+        <div class="control-group">
+            <div class="control-label">
+                <span>⏲️ 数据自动刷新间隔</span>
+                <span id="refreshIntervalLabel">3 秒</span>
+            </div>
+            <input type="range" id="refreshRange" min="0" max="600" step="1" value="3">
+            <div class="range-value" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>⚡ 设为0秒 = 停止自动刷新，可点「手动刷新」获取数据</span>
+                <button id="manualRefreshBtn" class="manual-refresh">🔄 手动刷新</button>
+            </div>
+            <div class="warning-note">✨ 支持URL参数: ?maxDistance=400&refreshInterval=5  一键调参</div>
+        </div>
+    </div>
+
+    <!-- 雷达图卡片 -->
     <div class="glass-card">
         <div style="padding: 16px 0 8px;">
             <div class="radar-container">
                 <canvas id="radarCanvas" width="500" height="500"></canvas>
             </div>
-            <div class="radar-label" style="text-align:center; margin-top:8px;">⚡ 脉冲波纹 · 橙色光点为目标位置</div>
+            <div class="radar-label">⚡ 脉冲波纹 · 橙色光点为目标位置 (映射至当前量程)</div>
         </div>
     </div>
 
-    <!-- 距离曲线 -->
+    <!-- 距离曲线卡片 -->
     <div class="glass-card">
         <div class="chart-box">
             <div id="distanceChart"></div>
         </div>
         <div class="footer-note">
-            🔗 数据来自 OneNET API | 左轴距离(cm) · 右轴运动(0=静止/1=运动)
+            🔗 数据来自 OneNET API | 左轴距离(cm) · 右轴运动(0=静止/1=运动) | Y轴上限跟随「最大量程」
         </div>
     </div>
 </div>
@@ -246,6 +416,145 @@
     let devices = [];
     let currentDeviceId = null;
 
+    // 可调节的全局变量
+    let distanceMax = 600;          // 默认最大距离 cm (范围10~600)
+    let refreshIntervalSec = 3;     // 默认3秒
+    let dataTimer = null;            // 定时器id
+
+    // 数据相关
+    let currentDistance = 0;
+    let currentPresence = 0;
+    let chart = null;
+    let historyData = [];      
+    const MAX_POINTS = 100;
+
+    // 存在时长逻辑
+    let presenceStartTime = null;
+    let totalPresenceSeconds = 0;
+    let currentPresenceState = false;
+
+    // ---------- URL 参数解析 (支持链接直接调节距离/刷新间隔) ----------
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        let newMax = params.get('maxDistance');
+        let newInterval = params.get('refreshInterval');
+        if (newMax !== null) {
+            let parsed = parseInt(newMax, 10);
+            if (!isNaN(parsed) && parsed >= 10 && parsed <= 600) distanceMax = parsed;
+            else if (parsed > 600) distanceMax = 600;
+            else if (parsed < 10 && parsed >= 0) distanceMax = 10;
+        }
+        if (newInterval !== null) {
+            let parsedInt = parseInt(newInterval, 10);
+            if (!isNaN(parsedInt) && parsedInt >= 0 && parsedInt <= 600) refreshIntervalSec = parsedInt;
+            else if (parsedInt > 600) refreshIntervalSec = 600;
+            else if (parsedInt < 0) refreshIntervalSec = 0;
+        }
+    }
+
+    // 更新UI上的滑块和数值
+    function updateControlUI() {
+        const rangeSlider = document.getElementById('distanceRange');
+        const maxLabel = document.getElementById('maxDistanceLabel');
+        if (rangeSlider) {
+            rangeSlider.value = distanceMax;
+            maxLabel.innerText = distanceMax + " cm";
+        }
+        const refreshSlider = document.getElementById('refreshRange');
+        const refreshLabel = document.getElementById('refreshIntervalLabel');
+        if (refreshSlider) {
+            refreshSlider.value = refreshIntervalSec;
+            refreshLabel.innerText = refreshIntervalSec + " 秒" + (refreshIntervalSec === 0 ? " (停止)" : "");
+        }
+    }
+
+    // 应用距离最大量程到图表Y轴 + 雷达图 (雷达图动画中实时读取distanceMax)
+    function applyDistanceMaxToChart() {
+        if (chart) {
+            chart.setOption({
+                yAxis: [{ max: distanceMax }, { max: 1.2, min: -0.2 }]  // 运动轴不变
+            });
+        }
+    }
+
+    // 刷新定时器控制
+    function stopDataTimer() {
+        if (dataTimer) {
+            clearInterval(dataTimer);
+            dataTimer = null;
+        }
+    }
+
+    function startDataTimer() {
+        if (dataTimer) stopDataTimer();
+        if (refreshIntervalSec > 0) {
+            dataTimer = setInterval(() => {
+                refreshData();
+            }, refreshIntervalSec * 1000);
+        } else {
+            // 间隔为0 => 不启动自动刷新
+            dataTimer = null;
+        }
+    }
+
+    // 重置定时器 (当间隔或设备变动时)
+    function restartDataTimer() {
+        stopDataTimer();
+        startDataTimer();
+    }
+
+    // 设备切换时清理历史并重置定时器
+    function onDeviceChangeFull() {
+        currentDeviceId = document.getElementById('deviceSelect').value;
+        // 重置历史数据和图表
+        historyData = [];
+        if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
+        // 重置存在时长 (设备独立)
+        totalPresenceSeconds = 0;
+        presenceStartTime = null;
+        currentPresenceState = false;
+        updatePresenceDisplay();
+        // 立即刷新一次数据
+        refreshData();
+        // 重启定时器保证新设备轮询
+        restartDataTimer();
+    }
+
+    // 存在时长辅助函数
+    function updatePresenceDisplay() {
+        const hours = Math.floor(totalPresenceSeconds / 3600);
+        const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
+        const secs = totalPresenceSeconds % 60;
+        let text = '';
+        if (hours > 0) text = `${hours}小时${minutes}分`;
+        else if (minutes > 0) text = `${minutes}分${secs}秒`;
+        else text = `${secs}秒`;
+        document.getElementById('totalPresenceTime').innerText = text;
+    }
+
+    function updateTimerLoop() {
+        if (currentPresenceState && presenceStartTime) {
+            const now = Date.now();
+            const added = Math.floor((now - presenceStartTime) / 1000);
+            if (added > 0) {
+                totalPresenceSeconds += added;
+                presenceStartTime = now;
+                updatePresenceDisplay();
+            }
+        }
+    }
+
+    function resetPresenceTimer() {
+        totalPresenceSeconds = 0;
+        updatePresenceDisplay();
+        if (currentPresenceState) {
+            presenceStartTime = Date.now();
+        } else {
+            presenceStartTime = null;
+        }
+    }
+
+    // ---------- 设备存储 ----------
     function loadDevices() {
         const stored = localStorage.getItem('radar_devices');
         if (stored) {
@@ -266,7 +575,7 @@
         }
         if (currentDeviceId) {
             document.getElementById('deviceSelect').value = currentDeviceId;
-            onDeviceChange();
+            onDeviceChangeFull();
         }
     }
 
@@ -294,7 +603,7 @@
         renderDeviceSelect();
         currentDeviceId = String(id);
         document.getElementById('deviceSelect').value = currentDeviceId;
-        onDeviceChange();
+        onDeviceChangeFull();
     }
 
     function editCurrentDevice() {
@@ -316,90 +625,12 @@
             saveDevices();
             currentDeviceId = devices[0].id;
             renderDeviceSelect();
-            onDeviceChange();
+            onDeviceChangeFull();
         }
     }
 
-    // 存在时长统计
-    let presenceStartTime = null;
-    let totalPresenceSeconds = 0;
-    let currentPresenceState = false;
-
-    function resetPresenceTimer() {
-        totalPresenceSeconds = 0;
-        updatePresenceDisplay();
-        if (currentPresenceState) {
-            presenceStartTime = Date.now();
-        } else {
-            presenceStartTime = null;
-        }
-    }
-
-    function updatePresenceDisplay() {
-        const hours = Math.floor(totalPresenceSeconds / 3600);
-        const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
-        const secs = totalPresenceSeconds % 60;
-        let text = '';
-        if (hours > 0) text = `${hours}小时${minutes}分`;
-        else if (minutes > 0) text = `${minutes}分${secs}秒`;
-        else text = `${secs}秒`;
-        document.getElementById('totalPresenceTime').innerText = text;
-    }
-
-    function updateTimerLoop() {
-        if (currentPresenceState && presenceStartTime) {
-            const now = Date.now();
-            const added = Math.floor((now - presenceStartTime) / 1000);
-            if (added > 0) {
-                totalPresenceSeconds += added;
-                presenceStartTime = now;
-                updatePresenceDisplay();
-            }
-        }
-    }
-
-    // ---------- 数据获取与图表 ----------
+    // ---------- API 获取 ----------
     const API_BASE = 'https://api.heclouds.com/devices';
-    let currentDistance = 0;
-    let currentPresence = 0;
-    let chart = null;
-    let historyData = [];      // { time, distance, motion }
-    const MAX_POINTS = 100;
-
-    function initChart() {
-        const dom = document.getElementById('distanceChart');
-        chart = echarts.init(dom);
-        chart.setOption({
-            backgroundColor: 'transparent',
-            tooltip: { trigger: 'axis' },
-            legend: { data: ['距离 (cm)', '运动状态'], textStyle: { color: '#cbd5e6' }, left: 'center', top: 0, itemWidth: 20 },
-            grid: { left: '12%', right: '12%', top: '18%', bottom: '12%', containLabel: true },
-            xAxis: { type: 'time', name: '时间', nameTextStyle: { color: '#8aa2cf' }, axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 9 } },
-            yAxis: [
-                { type: 'value', name: '距离 (cm)', min: 0, max: 600, axisLabel: { color: '#cbd5e6' } },
-                { type: 'value', name: '运动', min: -0.2, max: 1.2, interval: 1, axisLabel: { color: '#f97316', formatter: v => v===1?'运动':(v===0?'静止':'') } }
-            ],
-            series: [
-                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', lineStyle: { color: '#60a5fa' }, data: [], yAxisIndex: 0 },
-                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', lineStyle: { color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1 }
-            ]
-        });
-    }
-
-    function updateCharts(distance, motion, timestampMs) {
-        if (!chart) initChart();
-        const time = new Date(timestampMs);
-        historyData.push({ time, distance, motion: motion === 1 ? 1 : 0 });
-        if (historyData.length > MAX_POINTS) historyData.shift();
-
-        chart.setOption({
-            series: [
-                { data: historyData.map(p => [p.time, p.distance]) },
-                { data: historyData.map(p => [p.time, p.motion]) }
-            ]
-        });
-    }
-
     async function fetchDataStream(streamName) {
         if (!currentDeviceId) return null;
         const url = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
@@ -452,51 +683,73 @@
         motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
         timestampEl.innerHTML = timeStr;
 
-        if (newDistance > 0 && newDistance <= 600) updateCharts(newDistance, motion, now.getTime());
-        else if (currentPresence === 0) updateCharts(0, motion, now.getTime());
+        // 更新图表历史 (限制最大距离只影响显示，仍记录真实值)
+        if (newDistance > 0 || currentPresence === 0) {
+            updateCharts(newDistance, motion, now.getTime());
+        }
     }
 
-    function onDeviceChange() {
-        currentDeviceId = document.getElementById('deviceSelect').value;
-        // 重置历史数据和图表
-        historyData = [];
-        if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
-        // 重置存在时长（每个设备独立统计，这里简单重置为0，可按需扩展）
-        totalPresenceSeconds = 0;
-        presenceStartTime = null;
-        currentPresenceState = false;
-        updatePresenceDisplay();
-        refreshData();
+    function initChart() {
+        const dom = document.getElementById('distanceChart');
+        chart = echarts.init(dom);
+        chart.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['距离 (cm)', '运动状态'], textStyle: { color: '#cbd5e6' }, left: 'center', top: 0, itemWidth: 20 },
+            grid: { left: '12%', right: '12%', top: '18%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'time', name: '时间', nameTextStyle: { color: '#8aa2cf' }, axisLabel: { color: '#b9ceff', rotate: 30, fontSize: 9 } },
+            yAxis: [
+                { type: 'value', name: '距离 (cm)', min: 0, max: distanceMax, axisLabel: { color: '#cbd5e6' } },
+                { type: 'value', name: '运动', min: -0.2, max: 1.2, interval: 1, axisLabel: { color: '#f97316', formatter: v => v===1?'运动':(v===0?'静止':'') } }
+            ],
+            series: [
+                { name: '距离 (cm)', type: 'line', smooth: true, symbol: 'circle', lineStyle: { color: '#60a5fa' }, data: [], yAxisIndex: 0 },
+                { name: '运动状态', type: 'line', step: 'end', symbol: 'diamond', lineStyle: { color: '#f97316', type: 'dashed' }, data: [], yAxisIndex: 1 }
+            ]
+        });
     }
 
-    // 每秒计时器
-    setInterval(() => updateTimerLoop(), 1000);
+    function updateCharts(distance, motion, timestampMs) {
+        if (!chart) initChart();
+        const time = new Date(timestampMs);
+        historyData.push({ time, distance, motion: motion === 1 ? 1 : 0 });
+        if (historyData.length > MAX_POINTS) historyData.shift();
 
-    // ---------- 雷达绘制 ----------
+        chart.setOption({
+            series: [
+                { data: historyData.map(p => [p.time, p.distance]) },
+                { data: historyData.map(p => [p.time, p.motion]) }
+            ]
+        });
+    }
+
+    // ---------- 雷达图绘制 (支持动态距离最大量程) ----------
     const radarCanvas = document.getElementById('radarCanvas');
     let ctx = radarCanvas.getContext('2d');
     let pulseRadius = 0;
     let maxPulseRadius = 0;
     let animationId = null;
+    let radarWidth = 500, radarHeight = 500;
 
     function setCanvasSize() {
-        const size = 500;
-        radarCanvas.width = size;
-        radarCanvas.height = size;
-        const w = radarCanvas.width, h = radarCanvas.height;
-        maxPulseRadius = w/2 - 20;
+        radarCanvas.width = 500;
+        radarCanvas.height = 500;
+        radarWidth = radarCanvas.width;
+        radarHeight = radarCanvas.height;
+        maxPulseRadius = radarWidth/2 - 20;
         pulseRadius = 0;
         if (!animationId) drawRadar();
     }
 
     function drawRadar() {
-        const w = radarCanvas.width, h = radarCanvas.height;
+        const w = radarWidth, h = radarHeight;
         const centerX = w/2, centerY = h/2;
         const maxRadius = w/2 - 20;
         ctx.clearRect(0, 0, w, h);
         ctx.fillStyle = '#030f1f';
         ctx.fillRect(0, 0, w, h);
 
+        // 扇形区域
         const startAngle = -60 * Math.PI/180;
         const endAngle = 60 * Math.PI/180;
         ctx.beginPath();
@@ -516,6 +769,7 @@
         ctx.strokeStyle = '#f97316';
         ctx.stroke();
 
+        // 径向辅助线
         for (let angle = -60; angle <= 60; angle += 15) {
             if (Math.abs(angle) === 60) continue;
             let rad = angle * Math.PI/180;
@@ -528,12 +782,13 @@
             ctx.stroke();
         }
 
+        // 距离刻度 (根据当前 distanceMax 动态计算)
         for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
             ctx.beginPath();
             ctx.arc(centerX, centerY, r, startAngle, endAngle);
             ctx.strokeStyle = '#3b82f6';
             ctx.stroke();
-            let distCm = Math.round( (r / maxRadius) * 600 );
+            let distCm = Math.round( (r / maxRadius) * distanceMax );
             ctx.fillStyle = '#7e95c0';
             ctx.font = '10px "Segoe UI"';
             ctx.fillText(`${distCm}cm`, centerX + r - 12, centerY - 4);
@@ -565,9 +820,10 @@
         pulseRadius += 1.5;
         if (pulseRadius >= maxPulseRadius) pulseRadius = 0;
 
-        // 目标光点
+        // 目标光点 (距离基于当前量程映射)
         if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
-            let targetRadius = (currentDistance / 600) * maxRadius;
+            let ratio = Math.min(1, currentDistance / distanceMax);
+            let targetRadius = ratio * maxRadius;
             let x = centerX + targetRadius;
             let y = centerY;
             ctx.beginPath();
@@ -584,7 +840,42 @@
         animationId = requestAnimationFrame(drawRadar);
     }
 
-    // 事件绑定
+    // ---------- 事件绑定 & 初始化调节功能 ----------
+    function bindControls() {
+        const distanceSlider = document.getElementById('distanceRange');
+        const refreshSlider = document.getElementById('refreshRange');
+        const manualBtn = document.getElementById('manualRefreshBtn');
+
+        distanceSlider.addEventListener('input', (e) => {
+            distanceMax = parseInt(e.target.value, 10);
+            document.getElementById('maxDistanceLabel').innerText = distanceMax + " cm";
+            applyDistanceMaxToChart();
+            // 雷达图动画中自动使用新distanceMax，无需额外操作
+        });
+
+        refreshSlider.addEventListener('input', (e) => {
+            refreshIntervalSec = parseInt(e.target.value, 10);
+            document.getElementById('refreshIntervalLabel').innerText = refreshIntervalSec + " 秒" + (refreshIntervalSec === 0 ? " (停止)" : "");
+            restartDataTimer();
+        });
+
+        manualBtn.addEventListener('click', () => {
+            refreshData();
+        });
+    }
+
+    // 入口初始化
+    getUrlParams();           // 链接优先
+    loadDevices();           
+    initChart();
+    setCanvasSize();
+    applyDistanceMaxToChart();
+    bindControls();
+    updateControlUI();        // 同步滑块显示
+    startDataTimer();        // 开启定时器
+    setInterval(() => updateTimerLoop(), 1000);
+
+    // 设备管理按钮事件
     document.getElementById('addDeviceBtn').onclick = () => {
         const id = document.getElementById('newDeviceId').value.trim();
         const name = document.getElementById('newDeviceName').value.trim();
@@ -594,17 +885,10 @@
     document.getElementById('editDeviceBtn').onclick = editCurrentDevice;
     document.getElementById('delDeviceBtn').onclick = deleteCurrentDevice;
     document.getElementById('resetTimerBtn').onclick = resetPresenceTimer;
-    document.getElementById('deviceSelect').onchange = onDeviceChange;
+    document.getElementById('deviceSelect').onchange = onDeviceChangeFull;
 
-    // 启动
-    loadDevices();
-    setCanvasSize();
-    initChart();
-    refreshData();
-    setInterval(refreshData, 3000);
     window.addEventListener('resize', () => {
         if (chart) chart.resize();
-        setCanvasSize();
     });
 </script>
 </body>
