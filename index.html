@@ -17,7 +17,7 @@
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
             min-height: 100vh;
             padding: 12px 12px;
-            overflow-x: hidden;          /* 彻底防止水平溢出 */
+            overflow-x: hidden;
         }
 
         .dashboard {
@@ -26,7 +26,6 @@
             margin: 0 auto;
         }
 
-        /* 通用卡片风格 */
         .glass-card {
             background: rgba(20, 28, 48, 0.7);
             backdrop-filter: blur(18px);
@@ -119,7 +118,6 @@
             cursor: pointer;
         }
 
-        /* 统计卡片区域 */
         .stats-row {
             display: flex;
             gap: 12px;
@@ -147,7 +145,6 @@
             color: #f97316;
         }
 
-        /* 调节面板样式 */
         .control-group {
             padding: 12px 16px;
             border-bottom: 1px solid rgba(96,165,250,0.15);
@@ -218,7 +215,6 @@
             text-align: right;
         }
 
-        /* 雷达图容器 - 避免溢出 */
         .radar-container {
             position: relative;
             width: 100%;
@@ -283,7 +279,6 @@
             100% { opacity: 0.7; }
         }
 
-        /* 移动端极致适配 */
         @media (max-width: 560px) {
             body {
                 padding: 8px 8px;
@@ -340,7 +335,7 @@
         </div>
         <div style="padding: 0 16px 12px 16px;">
             <div class="add-device">
-                <input type="text" id="newDeviceId" placeholder="设备ID (数字)" value="">
+                <input type="text" id="newDeviceId" placeholder="设备ID (数字或名称)" value="">
                 <input type="text" id="newDeviceName" placeholder="名称 (如: 客厅)" value="">
                 <button id="addDeviceBtn">➕ 添加设备</button>
             </div>
@@ -361,12 +356,11 @@
         </div>
     </div>
 
-    <!-- 🆕 距离量程 & 刷新间隔调节卡片 (满足核心需求) -->
+    <!-- 调节面板 -->
     <div class="glass-card">
         <div class="card-header">
             <h2>🎛️ 调节面板 · 量程 & 刷新率</h2>
         </div>
-        <!-- 距离最大量程调节 0~600cm -->
         <div class="control-group">
             <div class="control-label">
                 <span>📐 雷达/图表 最大量程 (室内↔室外)</span>
@@ -375,7 +369,6 @@
             <input type="range" id="distanceRange" min="10" max="600" step="1" value="600">
             <div class="range-value">⬅️ 滑动改变显示范围 (不影响真实距离，仅可视化映射)</div>
         </div>
-        <!-- 刷新时间间隔 0~600 秒，支持0停止自动刷新 -->
         <div class="control-group">
             <div class="control-label">
                 <span>⏲️ 数据自动刷新间隔</span>
@@ -386,7 +379,7 @@
                 <span>⚡ 设为0秒 = 停止自动刷新，可点「手动刷新」获取数据</span>
                 <button id="manualRefreshBtn" class="manual-refresh">🔄 手动刷新</button>
             </div>
-            <div class="warning-note">✨ 支持URL参数: ?maxDistance=400&refreshInterval=5  一键调参</div>
+            <div class="warning-note">✨ 支持URL参数: ?maxDistance=400&refreshInterval=5&id=LD-24-01  一键调参</div>
         </div>
     </div>
 
@@ -417,27 +410,26 @@
     let currentDeviceId = null;
 
     // 可调节的全局变量
-    let distanceMax = 600;          // 默认最大距离 cm (范围10~600)
-    let refreshIntervalSec = 3;     // 默认3秒
-    let dataTimer = null;            // 定时器id
+    let distanceMax = 600;
+    let refreshIntervalSec = 3;
+    let dataTimer = null;
 
-    // 数据相关
     let currentDistance = 0;
     let currentPresence = 0;
     let chart = null;
     let historyData = [];      
     const MAX_POINTS = 100;
 
-    // 存在时长逻辑
     let presenceStartTime = null;
     let totalPresenceSeconds = 0;
     let currentPresenceState = false;
 
-    // ---------- URL 参数解析 (支持链接直接调节距离/刷新间隔) ----------
+    // ---------- URL 参数解析 (支持链接直接调节距离/刷新间隔/设备ID) ----------
     function getUrlParams() {
         const params = new URLSearchParams(window.location.search);
         let newMax = params.get('maxDistance');
         let newInterval = params.get('refreshInterval');
+        let newDeviceId = params.get('id');
         if (newMax !== null) {
             let parsed = parseInt(newMax, 10);
             if (!isNaN(parsed) && parsed >= 10 && parsed <= 600) distanceMax = parsed;
@@ -450,9 +442,19 @@
             else if (parsedInt > 600) refreshIntervalSec = 600;
             else if (parsedInt < 0) refreshIntervalSec = 0;
         }
+        // 关键：如果URL中有id参数，优先使用它作为当前设备，并确保设备在列表中
+        if (newDeviceId) {
+            // 检查设备是否已在列表中
+            let exists = devices.some(d => d.id === newDeviceId);
+            if (!exists) {
+                // 自动添加该设备，名称默认为设备ID
+                devices.push({ id: newDeviceId, name: newDeviceId });
+                saveDevices();
+            }
+            currentDeviceId = newDeviceId;
+        }
     }
 
-    // 更新UI上的滑块和数值
     function updateControlUI() {
         const rangeSlider = document.getElementById('distanceRange');
         const maxLabel = document.getElementById('maxDistanceLabel');
@@ -468,16 +470,14 @@
         }
     }
 
-    // 应用距离最大量程到图表Y轴 + 雷达图 (雷达图动画中实时读取distanceMax)
     function applyDistanceMaxToChart() {
         if (chart) {
             chart.setOption({
-                yAxis: [{ max: distanceMax }, { max: 1.2, min: -0.2 }]  // 运动轴不变
+                yAxis: [{ max: distanceMax }, { max: 1.2, min: -0.2 }]
             });
         }
     }
 
-    // 刷新定时器控制
     function stopDataTimer() {
         if (dataTimer) {
             clearInterval(dataTimer);
@@ -486,41 +486,31 @@
     }
 
     function startDataTimer() {
-        if (dataTimer) stopDataTimer();
+        stopDataTimer();
         if (refreshIntervalSec > 0) {
             dataTimer = setInterval(() => {
                 refreshData();
             }, refreshIntervalSec * 1000);
-        } else {
-            // 间隔为0 => 不启动自动刷新
-            dataTimer = null;
         }
     }
 
-    // 重置定时器 (当间隔或设备变动时)
     function restartDataTimer() {
         stopDataTimer();
         startDataTimer();
     }
 
-    // 设备切换时清理历史并重置定时器
     function onDeviceChangeFull() {
         currentDeviceId = document.getElementById('deviceSelect').value;
-        // 重置历史数据和图表
         historyData = [];
         if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
-        // 重置存在时长 (设备独立)
         totalPresenceSeconds = 0;
         presenceStartTime = null;
         currentPresenceState = false;
         updatePresenceDisplay();
-        // 立即刷新一次数据
         refreshData();
-        // 重启定时器保证新设备轮询
         restartDataTimer();
     }
 
-    // 存在时长辅助函数
     function updatePresenceDisplay() {
         const hours = Math.floor(totalPresenceSeconds / 3600);
         const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
@@ -566,13 +556,24 @@
             ];
             saveDevices();
         }
+        // 从URL参数获取设备ID（已在getUrlParams中处理，但需要确保在loadDevices之后）
+        const urlId = new URLSearchParams(window.location.search).get('id');
+        if (urlId) {
+            let exists = devices.some(d => d.id === urlId);
+            if (!exists) {
+                devices.push({ id: urlId, name: urlId });
+                saveDevices();
+            }
+            currentDeviceId = urlId;
+        } else {
+            if (devices.length > 0 && !currentDeviceId) {
+                currentDeviceId = devices[0].id;
+            }
+            if (currentDeviceId && !devices.find(d => d.id === currentDeviceId)) {
+                currentDeviceId = devices[0]?.id || null;
+            }
+        }
         renderDeviceSelect();
-        if (devices.length > 0 && !currentDeviceId) {
-            currentDeviceId = devices[0].id;
-        }
-        if (currentDeviceId && !devices.find(d => d.id === currentDeviceId)) {
-            currentDeviceId = devices[0]?.id || null;
-        }
         if (currentDeviceId) {
             document.getElementById('deviceSelect').value = currentDeviceId;
             onDeviceChangeFull();
@@ -652,7 +653,6 @@
         const newPresence = (presence === 1);
         const newDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
 
-        // 存在时长逻辑
         if (newPresence !== currentPresenceState) {
             if (newPresence) {
                 presenceStartTime = Date.now();
@@ -670,7 +670,6 @@
         currentPresence = presence === 1 ? 1 : 0;
         currentDistance = newDistance;
 
-        // 更新UI
         const presenceEl = document.getElementById('presenceValue');
         const presenceBadge = document.getElementById('presenceBadge');
         const distanceEl = document.getElementById('distanceValue');
@@ -683,7 +682,6 @@
         motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
         timestampEl.innerHTML = timeStr;
 
-        // 更新图表历史 (限制最大距离只影响显示，仍记录真实值)
         if (newDistance > 0 || currentPresence === 0) {
             updateCharts(newDistance, motion, now.getTime());
         }
@@ -714,7 +712,6 @@
         const time = new Date(timestampMs);
         historyData.push({ time, distance, motion: motion === 1 ? 1 : 0 });
         if (historyData.length > MAX_POINTS) historyData.shift();
-
         chart.setOption({
             series: [
                 { data: historyData.map(p => [p.time, p.distance]) },
@@ -723,7 +720,7 @@
         });
     }
 
-    // ---------- 雷达图绘制 (支持动态距离最大量程) ----------
+    // ---------- 雷达图绘制 ----------
     const radarCanvas = document.getElementById('radarCanvas');
     let ctx = radarCanvas.getContext('2d');
     let pulseRadius = 0;
@@ -749,7 +746,6 @@
         ctx.fillStyle = '#030f1f';
         ctx.fillRect(0, 0, w, h);
 
-        // 扇形区域
         const startAngle = -60 * Math.PI/180;
         const endAngle = 60 * Math.PI/180;
         ctx.beginPath();
@@ -769,7 +765,6 @@
         ctx.strokeStyle = '#f97316';
         ctx.stroke();
 
-        // 径向辅助线
         for (let angle = -60; angle <= 60; angle += 15) {
             if (Math.abs(angle) === 60) continue;
             let rad = angle * Math.PI/180;
@@ -782,7 +777,6 @@
             ctx.stroke();
         }
 
-        // 距离刻度 (根据当前 distanceMax 动态计算)
         for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
             ctx.beginPath();
             ctx.arc(centerX, centerY, r, startAngle, endAngle);
@@ -804,7 +798,6 @@
         ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
         ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
 
-        // 脉冲波纹
         if (pulseRadius <= maxPulseRadius) {
             const alpha = Math.max(0, 1 - (pulseRadius / maxPulseRadius) * 0.8);
             ctx.beginPath();
@@ -820,7 +813,6 @@
         pulseRadius += 1.5;
         if (pulseRadius >= maxPulseRadius) pulseRadius = 0;
 
-        // 目标光点 (距离基于当前量程映射)
         if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
             let ratio = Math.min(1, currentDistance / distanceMax);
             let targetRadius = ratio * maxRadius;
@@ -840,7 +832,6 @@
         animationId = requestAnimationFrame(drawRadar);
     }
 
-    // ---------- 事件绑定 & 初始化调节功能 ----------
     function bindControls() {
         const distanceSlider = document.getElementById('distanceRange');
         const refreshSlider = document.getElementById('refreshRange');
@@ -850,7 +841,6 @@
             distanceMax = parseInt(e.target.value, 10);
             document.getElementById('maxDistanceLabel').innerText = distanceMax + " cm";
             applyDistanceMaxToChart();
-            // 雷达图动画中自动使用新distanceMax，无需额外操作
         });
 
         refreshSlider.addEventListener('input', (e) => {
@@ -865,14 +855,14 @@
     }
 
     // 入口初始化
-    getUrlParams();           // 链接优先
-    loadDevices();           
+    getUrlParams();           // 先解析URL参数，但设备列表还未加载，所以需要稍后再次处理
+    loadDevices();           // 加载设备列表（内部会再次检查URL中的id并添加到列表）
     initChart();
     setCanvasSize();
     applyDistanceMaxToChart();
     bindControls();
-    updateControlUI();        // 同步滑块显示
-    startDataTimer();        // 开启定时器
+    updateControlUI();
+    startDataTimer();
     setInterval(() => updateTimerLoop(), 1000);
 
     // 设备管理按钮事件
