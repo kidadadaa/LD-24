@@ -11,7 +11,7 @@
             background: linear-gradient(145deg, #0a0f1e 0%, #12182e 100%);
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
             min-height: 100vh;
-            padding: 12px 12px;
+            padding: 12px;
             overflow-x: hidden;
         }
         .dashboard { max-width: 800px; width: 100%; margin: 0 auto; }
@@ -62,7 +62,6 @@
             border-radius: 30px;
             font-size: 0.7rem;
             cursor: pointer;
-            transition: 0.2s;
         }
         .device-selector button.edit-btn { background: #f97316; }
         .device-selector button.del-btn { background: #ef4444; }
@@ -222,7 +221,7 @@
         </div>
         <div style="padding: 0 16px 12px 16px;">
             <div class="add-device">
-                <input type="text" id="newDeviceId" placeholder="设备ID (数字ID)" value="">
+                <input type="text" id="newDeviceId" placeholder="设备ID (数字)" value="">
                 <input type="text" id="newDeviceName" placeholder="名称 (如: 客厅)" value="">
                 <button id="addDeviceBtn">➕ 添加设备</button>
             </div>
@@ -273,11 +272,10 @@
 </div>
 
 <script>
-    // ==================== 请替换为您产品的 MasterKey ====================
-    const MASTER_KEY = "SmlFdkJ5alJ5RWZZT0kxeGVDZ3QzeUlOanJzN0ltUFQ="; // ⚠️ 必须替换为您的产品 MasterKey
+    // ==================== 请替换为您的 Vercel 项目域名 ====================
+    const PROXY_URL = "https://你的项目名.vercel.app/api/getData";   // ⚠️ 必须修改
     // ==================================================================
 
-    // ---------- 设备管理 ----------
     let devices = [];
     let currentDeviceId = null;
     let distanceMax = 600;
@@ -289,16 +287,11 @@
     const MAX_POINTS = 100;
     let presenceStartTime = null, totalPresenceSeconds = 0, currentPresenceState = false;
 
-    // ---------- 直接调用 OneNET API（携带 api-key）----------
-    const API_BASE = "https://api.heclouds.com/devices";
-
     async function fetchDataStream(streamName) {
         if (!currentDeviceId) return null;
-        const url = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
+        const url = `${PROXY_URL}?device=${currentDeviceId}&stream=${streamName}`;
         try {
-            const resp = await fetch(url, {
-                headers: { 'api-key': MASTER_KEY }
-            });
+            const resp = await fetch(url);
             if (!resp.ok) return null;
             const json = await resp.json();
             return json.data?.value;
@@ -348,7 +341,6 @@
         if (newDistance > 0 || currentPresence === 0) updateCharts(newDistance, motion, now.getTime());
     }
 
-    // ---------- 以下函数与原有相同（设备管理、图表、雷达图等）----------
     function updatePresenceDisplay() {
         const hours = Math.floor(totalPresenceSeconds / 3600);
         const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
@@ -376,10 +368,7 @@
     function loadDevices() {
         const stored = localStorage.getItem('radar_devices');
         if (stored) devices = JSON.parse(stored);
-        else {
-            devices = [];
-            saveDevices();
-        }
+        else devices = [];
         const urlId = new URLSearchParams(window.location.search).get('id');
         if (urlId && !devices.find(d => d.id === urlId)) {
             devices.push({ id: urlId, name: urlId });
@@ -485,7 +474,6 @@
     }
     function restartDataTimer() { stopDataTimer(); startDataTimer(); }
 
-    // 雷达图（保留原逻辑，略作简化）
     const radarCanvas = document.getElementById('radarCanvas');
     let ctx = radarCanvas.getContext('2d');
     let pulseRadius = 0, maxPulseRadius = 0, animationId = null;
@@ -552,7 +540,6 @@
         document.getElementById('manualRefreshBtn').addEventListener('click', () => refreshData());
     }
 
-    // 初始化
     loadDevices();
     initChart();
     setCanvasSize();
