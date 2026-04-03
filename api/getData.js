@@ -8,8 +8,8 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing device or stream' });
   }
 
-  // ⚠️ 请替换为您的设备级密钥或产品 MasterKey
-  const MASTER_KEY = 'SmlFdkJ5alJ5RWZZT0kxeGVDZ3QzeUlOanJzN0ltUFQ=';  // 示例，请改为您的实际密钥
+  // ⚠️ 请替换为您的实际密钥（产品级 MasterKey 或设备密钥）
+  const MASTER_KEY = 'SmlFdkJ5alJ5RWZZT0kxeGVDZ3QzeUlOanJzN0ltUFQ=';
 
   const url = `https://api.heclouds.com/devices/${device}/datastreams/${stream}/datapoint?type=3`;
 
