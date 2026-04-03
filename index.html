@@ -273,6 +273,10 @@
 </div>
 
 <script>
+    // ==================== 请替换为您产品的 MasterKey ====================
+    const MASTER_KEY = "SmlFdkJ5alJ5RWZZT0kxeGVDZ3QzeUlOanJzN0ltUFQ="; // ⚠️ 必须替换为您的产品 MasterKey
+    // ==================================================================
+
     // ---------- 设备管理 ----------
     let devices = [];
     let currentDeviceId = null;
@@ -285,16 +289,16 @@
     const MAX_POINTS = 100;
     let presenceStartTime = null, totalPresenceSeconds = 0, currentPresenceState = false;
 
-    // ---------- CORS 代理 ----------
-    const CORS_PROXY = "https://corsproxy.io/?url=";
+    // ---------- 直接调用 OneNET API（携带 api-key）----------
     const API_BASE = "https://api.heclouds.com/devices";
 
     async function fetchDataStream(streamName) {
         if (!currentDeviceId) return null;
-        const targetUrl = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
-        const proxiedUrl = CORS_PROXY + encodeURIComponent(targetUrl);
+        const url = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
         try {
-            const resp = await fetch(proxiedUrl);
+            const resp = await fetch(url, {
+                headers: { 'api-key': MASTER_KEY }
+            });
             if (!resp.ok) return null;
             const json = await resp.json();
             return json.data?.value;
