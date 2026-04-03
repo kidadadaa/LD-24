@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>雷达卫士 · 多设备看板 · 可调量程与刷新率</title>
+    <title>雷达卫士 · 多设备看板</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: linear-gradient(145deg, #0a0f1e 0%, #12182e 100%);
             font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Poppins', 'Microsoft YaHei', sans-serif;
@@ -19,13 +14,7 @@
             padding: 12px 12px;
             overflow-x: hidden;
         }
-
-        .dashboard {
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
+        .dashboard { max-width: 800px; width: 100%; margin: 0 auto; }
         .glass-card {
             background: rgba(20, 28, 48, 0.7);
             backdrop-filter: blur(18px);
@@ -36,7 +25,6 @@
             margin-bottom: 16px;
             width: 100%;
         }
-
         .card-header {
             padding: 14px 16px 8px;
             border-bottom: 1px solid rgba(96,165,250,0.2);
@@ -46,15 +34,7 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-
-        .card-header h2 {
-            font-size: 1.2rem;
-            color: #e0f2fe;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .card-header h2 { font-size: 1.2rem; color: #e0f2fe; display: inline-flex; align-items: center; gap: 8px; }
         .device-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 40px;
@@ -64,7 +44,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-
         .device-selector select {
             background: #1e2a4a;
             border: 1px solid #3b82f6;
@@ -75,7 +54,6 @@
             outline: none;
             max-width: 160px;
         }
-
         .device-selector button {
             background: #3b82f6;
             border: none;
@@ -86,17 +64,14 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         .device-selector button.edit-btn { background: #f97316; }
         .device-selector button.del-btn { background: #ef4444; }
-
         .add-device {
             display: flex;
             gap: 8px;
             margin-top: 8px;
             flex-wrap: wrap;
         }
-
         .add-device input {
             flex: 1;
             min-width: 100px;
@@ -107,7 +82,6 @@
             color: white;
             font-size: 0.75rem;
         }
-
         .add-device button {
             background: #10b981;
             border: none;
@@ -117,14 +91,12 @@
             font-size: 0.75rem;
             cursor: pointer;
         }
-
         .stats-row {
             display: flex;
             gap: 12px;
             padding: 12px 16px;
             flex-wrap: wrap;
         }
-
         .stat-card {
             flex: 1;
             min-width: 100px;
@@ -133,18 +105,8 @@
             padding: 10px;
             text-align: center;
         }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: #8aa2cf;
-        }
-
-        .stat-number {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #f97316;
-        }
-
+        .stat-label { font-size: 0.7rem; color: #8aa2cf; }
+        .stat-number { font-size: 1.6rem; font-weight: 700; color: #f97316; }
         .control-group {
             padding: 12px 16px;
             border-bottom: 1px solid rgba(96,165,250,0.15);
@@ -159,18 +121,6 @@
             flex-wrap: wrap;
             gap: 8px;
         }
-        .control-label span:first-child {
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        .control-label span:last-child {
-            font-family: monospace;
-            background: #0f172a;
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            color: #facc15;
-        }
         input[type="range"] {
             width: 100%;
             height: 4px;
@@ -179,9 +129,6 @@
             border-radius: 4px;
             outline: none;
             margin: 8px 0;
-        }
-        input[type="range"]:focus {
-            outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -193,11 +140,6 @@
             box-shadow: 0 0 6px #ff9f4a;
             border: none;
         }
-        .range-value {
-            font-size: 0.75rem;
-            color: #9bbaf5;
-            text-align: right;
-        }
         .manual-refresh {
             background: #3b82f6;
             border: none;
@@ -208,13 +150,6 @@
             margin-left: 8px;
             cursor: pointer;
         }
-        .warning-note {
-            font-size: 0.6rem;
-            color: #facc15;
-            margin-top: 4px;
-            text-align: right;
-        }
-
         .radar-container {
             position: relative;
             width: 100%;
@@ -230,31 +165,20 @@
             height: 100% !important;
             border-radius: 20px;
         }
-        .radar-label {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 0.7rem;
-            color: #9bbaf5;
-        }
-
+        .radar-label { text-align: center; margin-top: 8px; font-size: 0.7rem; color: #9bbaf5; }
         .chart-box {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
             padding: 8px;
             margin: 0 12px 16px 12px;
         }
-        #distanceChart {
-            width: 100%;
-            height: 260px;
-        }
-
+        #distanceChart { width: 100%; height: 260px; }
         .footer-note {
             text-align: center;
             padding: 10px;
             font-size: 0.55rem;
             color: #4f6b96;
         }
-
         .badge {
             display: inline-block;
             background: rgba(59,130,246,0.2);
@@ -278,56 +202,19 @@
             50% { opacity: 1; text-shadow: 0 0 3px rgba(239,68,68,0.5);}
             100% { opacity: 0.7; }
         }
-
         @media (max-width: 560px) {
-            body {
-                padding: 8px 8px;
-            }
-            .card-header h2 {
-                font-size: 1rem;
-            }
-            .stat-number {
-                font-size: 1.3rem;
-            }
-            .stat-card {
-                min-width: 70px;
-            }
-            .device-selector select {
-                max-width: 130px;
-                font-size: 0.7rem;
-            }
-            .control-label {
-                font-size: 0.75rem;
-            }
-            .radar-container {
-                max-width: 280px;
-            }
-            #distanceChart {
-                height: 220px;
-            }
-        }
-
-        @media (max-width: 420px) {
-            .stats-row {
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 6px;
-            }
-            .add-device input {
-                font-size: 0.7rem;
-                padding: 6px 10px;
-            }
+            .stat-number { font-size: 1.3rem; }
+            .radar-container { max-width: 280px; }
+            #distanceChart { height: 220px; }
         }
     </style>
 </head>
 <body>
 <div class="dashboard">
-    <!-- 设备管理卡片 -->
     <div class="glass-card">
         <div class="card-header">
             <h2>📡 雷达卫士 · 多设备</h2>
-            <div class="device-selector" id="deviceSelector">
+            <div class="device-selector">
                 <select id="deviceSelect"></select>
                 <button class="edit-btn" id="editDeviceBtn">✏️ 编辑</button>
                 <button class="del-btn" id="delDeviceBtn">🗑️ 删除</button>
@@ -335,14 +222,17 @@
         </div>
         <div style="padding: 0 16px 12px 16px;">
             <div class="add-device">
-                <input type="text" id="newDeviceId" placeholder="设备ID (数字或名称)" value="">
+                <input type="text" id="newDeviceId" placeholder="设备ID (数字ID)" value="">
                 <input type="text" id="newDeviceName" placeholder="名称 (如: 客厅)" value="">
                 <button id="addDeviceBtn">➕ 添加设备</button>
+            </div>
+            <div style="font-size:0.7rem; color:#facc15; margin-top:8px;">
+                ⚠️ 请使用设备数字ID（如 2567244122），不要使用设备名称（LD-24-01）。<br>
+                若数据流未自动创建，请先用 Arduino 测试程序上报数据。
             </div>
         </div>
     </div>
 
-    <!-- 状态卡片 -->
     <div class="glass-card">
         <div class="stats-row">
             <div class="stat-card"><div class="stat-label">👤 人员状态</div><div class="stat-number" id="presenceValue">--</div><div class="badge" id="presenceBadge">等待数据</div></div>
@@ -356,51 +246,29 @@
         </div>
     </div>
 
-    <!-- 调节面板 -->
     <div class="glass-card">
-        <div class="card-header">
-            <h2>🎛️ 调节面板 · 量程 & 刷新率</h2>
-        </div>
+        <div class="card-header"><h2>🎛️ 调节面板 · 量程 & 刷新率</h2></div>
         <div class="control-group">
-            <div class="control-label">
-                <span>📐 雷达/图表 最大量程 (室内↔室外)</span>
-                <span id="maxDistanceLabel">600 cm</span>
-            </div>
+            <div class="control-label"><span>📐 雷达/图表 最大量程</span><span id="maxDistanceLabel">600 cm</span></div>
             <input type="range" id="distanceRange" min="10" max="600" step="1" value="600">
-            <div class="range-value">⬅️ 滑动改变显示范围 (不影响真实距离，仅可视化映射)</div>
         </div>
         <div class="control-group">
-            <div class="control-label">
-                <span>⏲️ 数据自动刷新间隔</span>
-                <span id="refreshIntervalLabel">3 秒</span>
-            </div>
+            <div class="control-label"><span>⏲️ 数据自动刷新间隔</span><span id="refreshIntervalLabel">3 秒</span></div>
             <input type="range" id="refreshRange" min="0" max="600" step="1" value="3">
-            <div class="range-value" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>⚡ 设为0秒 = 停止自动刷新，可点「手动刷新」获取数据</span>
-                <button id="manualRefreshBtn" class="manual-refresh">🔄 手动刷新</button>
-            </div>
-            <div class="warning-note">✨ 支持URL参数: ?maxDistance=400&refreshInterval=5&id=LD-24-01  一键调参</div>
+            <div style="margin-top:8px; display:flex; justify-content:flex-end;"><button id="manualRefreshBtn" class="manual-refresh">🔄 手动刷新</button></div>
         </div>
     </div>
 
-    <!-- 雷达图卡片 -->
     <div class="glass-card">
         <div style="padding: 16px 0 8px;">
-            <div class="radar-container">
-                <canvas id="radarCanvas" width="500" height="500"></canvas>
-            </div>
+            <div class="radar-container"><canvas id="radarCanvas" width="500" height="500"></canvas></div>
             <div class="radar-label">⚡ 脉冲波纹 · 橙色光点为目标位置 (映射至当前量程)</div>
         </div>
     </div>
 
-    <!-- 距离曲线卡片 -->
     <div class="glass-card">
-        <div class="chart-box">
-            <div id="distanceChart"></div>
-        </div>
-        <div class="footer-note">
-            🔗 数据来自 OneNET API | 左轴距离(cm) · 右轴运动(0=静止/1=运动) | Y轴上限跟随「最大量程」
-        </div>
+        <div class="chart-box"><div id="distanceChart"></div></div>
+        <div class="footer-note">🔗 数据来自 OneNET API | 左轴距离(cm) · 右轴运动(0=静止/1=运动)</div>
     </div>
 </div>
 
@@ -408,117 +276,80 @@
     // ---------- 设备管理 ----------
     let devices = [];
     let currentDeviceId = null;
-
-    // 可调节的全局变量
     let distanceMax = 600;
     let refreshIntervalSec = 3;
     let dataTimer = null;
-
-    let currentDistance = 0;
-    let currentPresence = 0;
+    let currentDistance = 0, currentPresence = 0;
     let chart = null;
-    let historyData = [];      
+    let historyData = [];
     const MAX_POINTS = 100;
+    let presenceStartTime = null, totalPresenceSeconds = 0, currentPresenceState = false;
 
-    let presenceStartTime = null;
-    let totalPresenceSeconds = 0;
-    let currentPresenceState = false;
+    // ---------- CORS 代理 ----------
+    const CORS_PROXY = "https://corsproxy.io/?url=";
+    const API_BASE = "https://api.heclouds.com/devices";
 
-    // ---------- URL 参数解析 (支持链接直接调节距离/刷新间隔/设备ID) ----------
-    function getUrlParams() {
-        const params = new URLSearchParams(window.location.search);
-        let newMax = params.get('maxDistance');
-        let newInterval = params.get('refreshInterval');
-        let newDeviceId = params.get('id');
-        if (newMax !== null) {
-            let parsed = parseInt(newMax, 10);
-            if (!isNaN(parsed) && parsed >= 10 && parsed <= 600) distanceMax = parsed;
-            else if (parsed > 600) distanceMax = 600;
-            else if (parsed < 10 && parsed >= 0) distanceMax = 10;
+    async function fetchDataStream(streamName) {
+        if (!currentDeviceId) return null;
+        const targetUrl = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
+        const proxiedUrl = CORS_PROXY + encodeURIComponent(targetUrl);
+        try {
+            const resp = await fetch(proxiedUrl);
+            if (!resp.ok) return null;
+            const json = await resp.json();
+            return json.data?.value;
+        } catch(e) {
+            console.warn(`fetch ${streamName} error`, e);
+            return null;
         }
-        if (newInterval !== null) {
-            let parsedInt = parseInt(newInterval, 10);
-            if (!isNaN(parsedInt) && parsedInt >= 0 && parsedInt <= 600) refreshIntervalSec = parsedInt;
-            else if (parsedInt > 600) refreshIntervalSec = 600;
-            else if (parsedInt < 0) refreshIntervalSec = 0;
-        }
-        // 关键：如果URL中有id参数，优先使用它作为当前设备，并确保设备在列表中
-        if (newDeviceId) {
-            // 检查设备是否已在列表中
-            let exists = devices.some(d => d.id === newDeviceId);
-            if (!exists) {
-                // 自动添加该设备，名称默认为设备ID
-                devices.push({ id: newDeviceId, name: newDeviceId });
-                saveDevices();
+    }
+
+    async function refreshData() {
+        if (!currentDeviceId) return;
+        const [presence, motion, distance] = await Promise.all([
+            fetchDataStream('presence'), fetchDataStream('motion'), fetchDataStream('distance')
+        ]);
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+        const newPresence = (presence === 1);
+        const newDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
+
+        if (newPresence !== currentPresenceState) {
+            if (newPresence) presenceStartTime = Date.now();
+            else if (presenceStartTime) {
+                const added = Math.floor((Date.now() - presenceStartTime) / 1000);
+                if (added > 0) totalPresenceSeconds += added;
+                presenceStartTime = null;
+                updatePresenceDisplay();
             }
-            currentDeviceId = newDeviceId;
+            currentPresenceState = newPresence;
         }
+
+        currentPresence = presence === 1 ? 1 : 0;
+        currentDistance = newDistance;
+
+        const presenceEl = document.getElementById('presenceValue');
+        const presenceBadge = document.getElementById('presenceBadge');
+        const distanceEl = document.getElementById('distanceValue');
+        const motionEl = document.getElementById('motionValue');
+        const timestampEl = document.getElementById('timestamp');
+
+        if (presence === 1) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 在场'; presenceBadge.className = 'badge badge-alarm'; }
+        else if (presence === 0) { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 安静'; presenceBadge.className = 'badge badge-safe'; }
+        else { presenceEl.innerHTML = '❓ 未知'; presenceBadge.className = 'badge'; }
+        distanceEl.innerHTML = newDistance !== 0 ? newDistance : '--';
+        motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
+        timestampEl.innerHTML = timeStr;
+
+        if (newDistance > 0 || currentPresence === 0) updateCharts(newDistance, motion, now.getTime());
     }
 
-    function updateControlUI() {
-        const rangeSlider = document.getElementById('distanceRange');
-        const maxLabel = document.getElementById('maxDistanceLabel');
-        if (rangeSlider) {
-            rangeSlider.value = distanceMax;
-            maxLabel.innerText = distanceMax + " cm";
-        }
-        const refreshSlider = document.getElementById('refreshRange');
-        const refreshLabel = document.getElementById('refreshIntervalLabel');
-        if (refreshSlider) {
-            refreshSlider.value = refreshIntervalSec;
-            refreshLabel.innerText = refreshIntervalSec + " 秒" + (refreshIntervalSec === 0 ? " (停止)" : "");
-        }
-    }
-
-    function applyDistanceMaxToChart() {
-        if (chart) {
-            chart.setOption({
-                yAxis: [{ max: distanceMax }, { max: 1.2, min: -0.2 }]
-            });
-        }
-    }
-
-    function stopDataTimer() {
-        if (dataTimer) {
-            clearInterval(dataTimer);
-            dataTimer = null;
-        }
-    }
-
-    function startDataTimer() {
-        stopDataTimer();
-        if (refreshIntervalSec > 0) {
-            dataTimer = setInterval(() => {
-                refreshData();
-            }, refreshIntervalSec * 1000);
-        }
-    }
-
-    function restartDataTimer() {
-        stopDataTimer();
-        startDataTimer();
-    }
-
-    function onDeviceChangeFull() {
-        currentDeviceId = document.getElementById('deviceSelect').value;
-        historyData = [];
-        if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
-        totalPresenceSeconds = 0;
-        presenceStartTime = null;
-        currentPresenceState = false;
-        updatePresenceDisplay();
-        refreshData();
-        restartDataTimer();
-    }
-
+    // ---------- 以下函数与原有相同（设备管理、图表、雷达图等）----------
     function updatePresenceDisplay() {
         const hours = Math.floor(totalPresenceSeconds / 3600);
         const minutes = Math.floor((totalPresenceSeconds % 3600) / 60);
         const secs = totalPresenceSeconds % 60;
-        let text = '';
-        if (hours > 0) text = `${hours}小时${minutes}分`;
-        else if (minutes > 0) text = `${minutes}分${secs}秒`;
-        else text = `${secs}秒`;
+        let text = hours>0 ? `${hours}小时${minutes}分` : (minutes>0 ? `${minutes}分${secs}秒` : `${secs}秒`);
         document.getElementById('totalPresenceTime').innerText = text;
     }
 
@@ -526,64 +357,36 @@
         if (currentPresenceState && presenceStartTime) {
             const now = Date.now();
             const added = Math.floor((now - presenceStartTime) / 1000);
-            if (added > 0) {
-                totalPresenceSeconds += added;
-                presenceStartTime = now;
-                updatePresenceDisplay();
-            }
+            if (added > 0) { totalPresenceSeconds += added; presenceStartTime = now; updatePresenceDisplay(); }
         }
     }
+    setInterval(updateTimerLoop, 1000);
 
     function resetPresenceTimer() {
         totalPresenceSeconds = 0;
         updatePresenceDisplay();
-        if (currentPresenceState) {
-            presenceStartTime = Date.now();
-        } else {
-            presenceStartTime = null;
-        }
+        if (currentPresenceState) presenceStartTime = Date.now();
+        else presenceStartTime = null;
     }
 
-    // ---------- 设备存储 ----------
     function loadDevices() {
         const stored = localStorage.getItem('radar_devices');
-        if (stored) {
-            devices = JSON.parse(stored);
-        } else {
-            devices = [
-                { id: '12345678', name: '客厅雷达' },
-                { id: '87654321', name: '卧室雷达' }
-            ];
+        if (stored) devices = JSON.parse(stored);
+        else {
+            devices = [];
             saveDevices();
         }
-        // 从URL参数获取设备ID（已在getUrlParams中处理，但需要确保在loadDevices之后）
         const urlId = new URLSearchParams(window.location.search).get('id');
-        if (urlId) {
-            let exists = devices.some(d => d.id === urlId);
-            if (!exists) {
-                devices.push({ id: urlId, name: urlId });
-                saveDevices();
-            }
-            currentDeviceId = urlId;
-        } else {
-            if (devices.length > 0 && !currentDeviceId) {
-                currentDeviceId = devices[0].id;
-            }
-            if (currentDeviceId && !devices.find(d => d.id === currentDeviceId)) {
-                currentDeviceId = devices[0]?.id || null;
-            }
+        if (urlId && !devices.find(d => d.id === urlId)) {
+            devices.push({ id: urlId, name: urlId });
+            saveDevices();
         }
+        if (devices.length > 0 && !currentDeviceId) currentDeviceId = devices[0].id;
         renderDeviceSelect();
-        if (currentDeviceId) {
-            document.getElementById('deviceSelect').value = currentDeviceId;
-            onDeviceChangeFull();
-        }
+        if (currentDeviceId) { document.getElementById('deviceSelect').value = currentDeviceId; onDeviceChangeFull(); }
     }
 
-    function saveDevices() {
-        localStorage.setItem('radar_devices', JSON.stringify(devices));
-    }
-
+    function saveDevices() { localStorage.setItem('radar_devices', JSON.stringify(devices)); }
     function renderDeviceSelect() {
         const select = document.getElementById('deviceSelect');
         select.innerHTML = '';
@@ -611,11 +414,7 @@
         const dev = devices.find(d => d.id === currentDeviceId);
         if (!dev) return;
         const newName = prompt('请输入新的设备名称', dev.name);
-        if (newName && newName.trim()) {
-            dev.name = newName.trim();
-            saveDevices();
-            renderDeviceSelect();
-        }
+        if (newName && newName.trim()) { dev.name = newName.trim(); saveDevices(); renderDeviceSelect(); }
     }
 
     function deleteCurrentDevice() {
@@ -630,61 +429,14 @@
         }
     }
 
-    // ---------- API 获取 ----------
-    const API_BASE = 'https://api.heclouds.com/devices';
-    async function fetchDataStream(streamName) {
-        if (!currentDeviceId) return null;
-        const url = `${API_BASE}/${currentDeviceId}/datastreams/${streamName}/datapoint?type=3`;
-        try {
-            const resp = await fetch(url);
-            if (!resp.ok) return null;
-            const json = await resp.json();
-            return json.data?.value;
-        } catch(e) { console.warn(`fetch ${streamName} error`, e); return null; }
-    }
-
-    async function refreshData() {
-        if (!currentDeviceId) return;
-        const [presence, motion, distance] = await Promise.all([
-            fetchDataStream('presence'), fetchDataStream('motion'), fetchDataStream('distance')
-        ]);
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-        const newPresence = (presence === 1);
-        const newDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
-
-        if (newPresence !== currentPresenceState) {
-            if (newPresence) {
-                presenceStartTime = Date.now();
-            } else {
-                if (presenceStartTime) {
-                    const added = Math.floor((Date.now() - presenceStartTime) / 1000);
-                    if (added > 0) totalPresenceSeconds += added;
-                    presenceStartTime = null;
-                    updatePresenceDisplay();
-                }
-            }
-            currentPresenceState = newPresence;
-        }
-
-        currentPresence = presence === 1 ? 1 : 0;
-        currentDistance = newDistance;
-
-        const presenceEl = document.getElementById('presenceValue');
-        const presenceBadge = document.getElementById('presenceBadge');
-        const distanceEl = document.getElementById('distanceValue');
-        const motionEl = document.getElementById('motionValue');
-        const timestampEl = document.getElementById('timestamp');
-        if (presence === 1) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 在场'; presenceBadge.className = 'badge badge-alarm'; }
-        else if (presence === 0) { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 安静'; presenceBadge.className = 'badge badge-safe'; }
-        else { presenceEl.innerHTML = '❓ 未知'; presenceBadge.className = 'badge'; }
-        distanceEl.innerHTML = newDistance !== 0 ? newDistance : '--';
-        motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
-        timestampEl.innerHTML = timeStr;
-
-        if (newDistance > 0 || currentPresence === 0) {
-            updateCharts(newDistance, motion, now.getTime());
-        }
+    function onDeviceChangeFull() {
+        currentDeviceId = document.getElementById('deviceSelect').value;
+        historyData = [];
+        if (chart) chart.setOption({ series: [{ data: [] }, { data: [] }] });
+        totalPresenceSeconds = 0; presenceStartTime = null; currentPresenceState = false;
+        updatePresenceDisplay();
+        refreshData();
+        restartDataTimer();
     }
 
     function initChart() {
@@ -720,166 +472,101 @@
         });
     }
 
-    // ---------- 雷达图绘制 ----------
+    function applyDistanceMaxToChart() { if (chart) chart.setOption({ yAxis: [{ max: distanceMax }, { max: 1.2, min: -0.2 }] }); }
+
+    function stopDataTimer() { if (dataTimer) { clearInterval(dataTimer); dataTimer = null; } }
+    function startDataTimer() {
+        stopDataTimer();
+        if (refreshIntervalSec > 0) dataTimer = setInterval(() => refreshData(), refreshIntervalSec * 1000);
+    }
+    function restartDataTimer() { stopDataTimer(); startDataTimer(); }
+
+    // 雷达图（保留原逻辑，略作简化）
     const radarCanvas = document.getElementById('radarCanvas');
     let ctx = radarCanvas.getContext('2d');
-    let pulseRadius = 0;
-    let maxPulseRadius = 0;
-    let animationId = null;
-    let radarWidth = 500, radarHeight = 500;
-
+    let pulseRadius = 0, maxPulseRadius = 0, animationId = null;
     function setCanvasSize() {
-        radarCanvas.width = 500;
-        radarCanvas.height = 500;
-        radarWidth = radarCanvas.width;
-        radarHeight = radarCanvas.height;
-        maxPulseRadius = radarWidth/2 - 20;
+        radarCanvas.width = radarCanvas.height = 500;
+        maxPulseRadius = 250 - 20;
         pulseRadius = 0;
         if (!animationId) drawRadar();
     }
-
     function drawRadar() {
-        const w = radarWidth, h = radarHeight;
-        const centerX = w/2, centerY = h/2;
-        const maxRadius = w/2 - 20;
-        ctx.clearRect(0, 0, w, h);
+        const w = 500, h = 500, cx = w/2, cy = h/2, maxR = w/2 - 20;
+        ctx.clearRect(0,0,w,h);
         ctx.fillStyle = '#030f1f';
-        ctx.fillRect(0, 0, w, h);
-
-        const startAngle = -60 * Math.PI/180;
-        const endAngle = 60 * Math.PI/180;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, maxRadius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(59,130,246,0.2)';
-        ctx.fill();
-        ctx.strokeStyle = '#3b82f6';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(centerX + maxRadius * Math.cos(startAngle), centerY + maxRadius * Math.sin(startAngle));
-        ctx.lineTo(centerX + maxRadius * Math.cos(endAngle), centerY + maxRadius * Math.sin(endAngle));
-        ctx.closePath();
-        ctx.strokeStyle = '#f97316';
-        ctx.stroke();
-
-        for (let angle = -60; angle <= 60; angle += 15) {
-            if (Math.abs(angle) === 60) continue;
-            let rad = angle * Math.PI/180;
-            let x = centerX + maxRadius * Math.cos(rad);
-            let y = centerY + maxRadius * Math.sin(rad);
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = '#2c5a8c';
-            ctx.stroke();
+        ctx.fillRect(0,0,w,h);
+        const start = -60 * Math.PI/180, end = 60 * Math.PI/180;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,maxR,start,end); ctx.closePath();
+        ctx.fillStyle = 'rgba(59,130,246,0.2)'; ctx.fill();
+        ctx.strokeStyle = '#3b82f6'; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+maxR*Math.cos(start), cy+maxR*Math.sin(start)); ctx.lineTo(cx+maxR*Math.cos(end), cy+maxR*Math.sin(end)); ctx.closePath();
+        ctx.strokeStyle = '#f97316'; ctx.stroke();
+        for (let a=-60; a<=60; a+=15) {
+            if(Math.abs(a)===60) continue;
+            let rad = a*Math.PI/180;
+            let x = cx+maxR*Math.cos(rad), y = cy+maxR*Math.sin(rad);
+            ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.strokeStyle='#2c5a8c'; ctx.stroke();
         }
-
-        for (let r = maxRadius/6; r <= maxRadius; r += maxRadius/6) {
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, r, startAngle, endAngle);
-            ctx.strokeStyle = '#3b82f6';
-            ctx.stroke();
-            let distCm = Math.round( (r / maxRadius) * distanceMax );
-            ctx.fillStyle = '#7e95c0';
-            ctx.font = '10px "Segoe UI"';
-            ctx.fillText(`${distCm}cm`, centerX + r - 12, centerY - 4);
+        for (let r = maxR/6; r<=maxR; r+=maxR/6) {
+            ctx.beginPath(); ctx.arc(cx,cy,r,start,end); ctx.strokeStyle='#3b82f6'; ctx.stroke();
+            let dist = Math.round((r/maxR)*distanceMax);
+            ctx.fillStyle='#7e95c0'; ctx.font='10px "Segoe UI"';
+            ctx.fillText(`${dist}cm`, cx+r-12, cy-4);
         }
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
-        ctx.fillStyle = '#60a5fa';
-        ctx.fill();
-
-        ctx.fillStyle = '#6c86b0';
-        ctx.font = '9px sans-serif';
-        ctx.fillText('X (0°)', centerX + maxRadius - 20, centerY - 8);
-        ctx.fillText('Y (90°)', centerX + 5, centerY - maxRadius + 15);
-
+        ctx.beginPath(); ctx.arc(cx,cy,5,0,2*Math.PI); ctx.fillStyle='#60a5fa'; ctx.fill();
+        ctx.fillStyle='#6c86b0'; ctx.font='9px sans-serif';
+        ctx.fillText('X (0°)', cx+maxR-20, cy-8); ctx.fillText('Y (90°)', cx+5, cy-maxR+15);
         if (pulseRadius <= maxPulseRadius) {
             const alpha = Math.max(0, 1 - (pulseRadius / maxPulseRadius) * 0.8);
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseRadius, 0, 2*Math.PI);
-            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.8})`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseRadius * 0.7, 0, 2*Math.PI);
-            ctx.strokeStyle = `rgba(249, 115, 22, ${alpha * 0.5})`;
-            ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx,cy,pulseRadius,0,2*Math.PI); ctx.strokeStyle=`rgba(249,115,22,${alpha*0.8})`; ctx.lineWidth=2; ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx,cy,pulseRadius*0.7,0,2*Math.PI); ctx.strokeStyle=`rgba(249,115,22,${alpha*0.5})`; ctx.stroke();
         }
-        pulseRadius += 1.5;
-        if (pulseRadius >= maxPulseRadius) pulseRadius = 0;
-
-        if (currentPresence === 1 && currentDistance > 0 && currentDistance <= 600) {
+        pulseRadius += 1.5; if(pulseRadius >= maxPulseRadius) pulseRadius = 0;
+        if (currentPresence===1 && currentDistance>0 && currentDistance<=600) {
             let ratio = Math.min(1, currentDistance / distanceMax);
-            let targetRadius = ratio * maxRadius;
-            let x = centerX + targetRadius;
-            let y = centerY;
-            ctx.beginPath();
-            ctx.arc(x, y, 8, 0, 2*Math.PI);
-            ctx.fillStyle = '#f97316';
-            ctx.shadowBlur = 12;
-            ctx.fill();
-            ctx.fillStyle = '#ffd966';
-            ctx.font = 'bold 11px monospace';
-            ctx.shadowBlur = 0;
+            let tr = ratio * maxR;
+            let x = cx + tr, y = cy;
+            ctx.beginPath(); ctx.arc(x,y,8,0,2*Math.PI); ctx.fillStyle='#f97316'; ctx.shadowBlur=12; ctx.fill();
+            ctx.fillStyle='#ffd966'; ctx.font='bold 11px monospace'; ctx.shadowBlur=0;
             ctx.fillText(`${currentDistance}cm`, x+12, y-6);
         }
-
         animationId = requestAnimationFrame(drawRadar);
     }
 
     function bindControls() {
-        const distanceSlider = document.getElementById('distanceRange');
-        const refreshSlider = document.getElementById('refreshRange');
-        const manualBtn = document.getElementById('manualRefreshBtn');
-
-        distanceSlider.addEventListener('input', (e) => {
-            distanceMax = parseInt(e.target.value, 10);
+        document.getElementById('distanceRange').addEventListener('input', (e) => {
+            distanceMax = parseInt(e.target.value,10);
             document.getElementById('maxDistanceLabel').innerText = distanceMax + " cm";
             applyDistanceMaxToChart();
         });
-
-        refreshSlider.addEventListener('input', (e) => {
-            refreshIntervalSec = parseInt(e.target.value, 10);
-            document.getElementById('refreshIntervalLabel').innerText = refreshIntervalSec + " 秒" + (refreshIntervalSec === 0 ? " (停止)" : "");
+        document.getElementById('refreshRange').addEventListener('input', (e) => {
+            refreshIntervalSec = parseInt(e.target.value,10);
+            document.getElementById('refreshIntervalLabel').innerText = refreshIntervalSec + " 秒" + (refreshIntervalSec===0?" (停止)":"");
             restartDataTimer();
         });
-
-        manualBtn.addEventListener('click', () => {
-            refreshData();
-        });
+        document.getElementById('manualRefreshBtn').addEventListener('click', () => refreshData());
     }
 
-    // 入口初始化
-    getUrlParams();           // 先解析URL参数，但设备列表还未加载，所以需要稍后再次处理
-    loadDevices();           // 加载设备列表（内部会再次检查URL中的id并添加到列表）
+    // 初始化
+    loadDevices();
     initChart();
     setCanvasSize();
     applyDistanceMaxToChart();
     bindControls();
-    updateControlUI();
     startDataTimer();
-    setInterval(() => updateTimerLoop(), 1000);
 
-    // 设备管理按钮事件
     document.getElementById('addDeviceBtn').onclick = () => {
         const id = document.getElementById('newDeviceId').value.trim();
         const name = document.getElementById('newDeviceName').value.trim();
-        if (id && name) addDevice(id, name);
+        if(id && name) addDevice(id, name);
         else alert('请填写完整');
     };
     document.getElementById('editDeviceBtn').onclick = editCurrentDevice;
     document.getElementById('delDeviceBtn').onclick = deleteCurrentDevice;
     document.getElementById('resetTimerBtn').onclick = resetPresenceTimer;
     document.getElementById('deviceSelect').onchange = onDeviceChangeFull;
-
-    window.addEventListener('resize', () => {
-        if (chart) chart.resize();
-    });
+    window.addEventListener('resize', () => { if(chart) chart.resize(); });
 </script>
 </body>
 </html>
