@@ -221,13 +221,13 @@
         </div>
         <div style="padding: 0 16px 12px 16px;">
             <div class="add-device">
-                <input type="text" id="newDeviceId" placeholder="设备ID (数字)" value="">
+                <input type="text" id="newDeviceId" placeholder="设备ID (名称或数字)" value="">
                 <input type="text" id="newDeviceName" placeholder="名称 (如: 客厅)" value="">
                 <button id="addDeviceBtn">➕ 添加设备</button>
             </div>
             <div style="font-size:0.7rem; color:#facc15; margin-top:8px;">
-                ⚠️ 请使用设备数字ID（如 2567244122），不要使用设备名称（LD-24-01）。<br>
-                若数据流未自动创建，请先用 Arduino 测试程序上报数据。
+                ✅ 设备ID请填写 <strong>设备名称</strong>（如 LD-24-01），不是数字ID。<br>
+                若数据未显示，请检查 Vercel 代理是否正常部署。
             </div>
         </div>
     </div>
@@ -272,8 +272,8 @@
 </div>
 
 <script>
-    // ==================== 请替换为您的 Vercel 项目域名 ====================
-    const PROXY_URL = "https://ld-24.vercel.app/";   // ⚠️ 必须修改
+    // ==================== 使用相对路径调用 Vercel 云函数 ====================
+    const PROXY_URL = "/api/getData";   // 确保 Vercel 项目中有 api/getData.js
     // ==================================================================
 
     let devices = [];
@@ -289,12 +289,17 @@
 
     async function fetchDataStream(streamName) {
         if (!currentDeviceId) return null;
-        const url = `${PROXY_URL}?device=${currentDeviceId}&stream=${streamName}`;
+        const url = `${PROXY_URL}?device=${encodeURIComponent(currentDeviceId)}&stream=${streamName}`;
         try {
             const resp = await fetch(url);
             if (!resp.ok) return null;
             const json = await resp.json();
-            return json.data?.value;
+            // 代理返回的格式是 OneNET API 原始响应，例如 { errno:0, data:{ value:75, at:... } }
+            if (json.errno === 0 && json.data && json.data.value !== undefined) {
+                return json.data.value;
+            }
+            console.warn(`API returned errno: ${json.errno}, error: ${json.error}`);
+            return null;
         } catch(e) {
             console.warn(`fetch ${streamName} error`, e);
             return null;
@@ -308,7 +313,7 @@
         ]);
         const now = new Date();
         const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-        const newPresence = (presence === 1);
+        const newPresence = (presence === 1 || presence === true);
         const newDistance = (distance !== null && distance !== undefined && distance > 0) ? distance : 0;
 
         if (newPresence !== currentPresenceState) {
@@ -322,7 +327,7 @@
             currentPresenceState = newPresence;
         }
 
-        currentPresence = presence === 1 ? 1 : 0;
+        currentPresence = newPresence ? 1 : 0;
         currentDistance = newDistance;
 
         const presenceEl = document.getElementById('presenceValue');
@@ -331,11 +336,10 @@
         const motionEl = document.getElementById('motionValue');
         const timestampEl = document.getElementById('timestamp');
 
-        if (presence === 1) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 在场'; presenceBadge.className = 'badge badge-alarm'; }
-        else if (presence === 0) { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 安静'; presenceBadge.className = 'badge badge-safe'; }
-        else { presenceEl.innerHTML = '❓ 未知'; presenceBadge.className = 'badge'; }
+        if (newPresence) { presenceEl.innerHTML = '🟢 有人'; presenceBadge.innerHTML = '⚠️ 在场'; presenceBadge.className = 'badge badge-alarm'; }
+        else { presenceEl.innerHTML = '⚪ 无人'; presenceBadge.innerHTML = '✓ 安静'; presenceBadge.className = 'badge badge-safe'; }
         distanceEl.innerHTML = newDistance !== 0 ? newDistance : '--';
-        motionEl.innerHTML = (motion === 1) ? '🏃 运动中' : (motion === 0 ? '🧘 静止' : '❓ 未知');
+        motionEl.innerHTML = (motion === 1 || motion === true) ? '🏃 运动中' : (motion === 0 || motion === false ? '🧘 静止' : '❓ 未知');
         timestampEl.innerHTML = timeStr;
 
         if (newDistance > 0 || currentPresence === 0) updateCharts(newDistance, motion, now.getTime());
@@ -455,7 +459,7 @@
     function updateCharts(distance, motion, timestampMs) {
         if (!chart) initChart();
         const time = new Date(timestampMs);
-        historyData.push({ time, distance, motion: motion === 1 ? 1 : 0 });
+        historyData.push({ time, distance, motion: motion === 1 || motion === true ? 1 : 0 });
         if (historyData.length > MAX_POINTS) historyData.shift();
         chart.setOption({
             series: [
