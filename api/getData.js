@@ -1,5 +1,6 @@
+// api/getData.js
 module.exports = async function handler(req, res) {
-  // 设置 CORS 头
+  // 设置 CORS 头，允许前端跨域调用
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
@@ -8,8 +9,8 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing device or stream' });
   }
 
-  // ⚠️ 请替换为您的实际密钥（产品级 MasterKey 或设备密钥）
-  const MASTER_KEY = 'SmlFdkJ5alJ5RWZZT0kxeGVDZ3QzeUlOanJzN0ltUFQ=';
+  // 产品 MasterKey（请替换为您的实际密钥）
+  const MASTER_KEY = 'C8vpPw9p4YnncYVJ5eVvo+kfNaPxJdVf3wkl9SlXTYs=';
 
   const url = `https://api.heclouds.com/devices/${device}/datastreams/${stream}/datapoint?type=3`;
 
