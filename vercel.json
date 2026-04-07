@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/getData.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/getData",
+      "dest": "/api/getData.js"
+    }
+  ]
+}
